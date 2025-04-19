@@ -51,7 +51,7 @@ export function OverviewCourseView() {
         >
           <Box sx={{ mb: 2 }}>
             <Typography variant="h4" sx={{ mb: 1 }}>
-              Hi, Frankie 👋
+              Hi, Frankie👋
             </Typography>
             <Typography
               sx={{ color: 'text.secondary' }}
