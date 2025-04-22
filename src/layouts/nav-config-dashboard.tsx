@@ -43,6 +43,7 @@ const ICONS = {
   parameter: icon('ic-parameter'),
   category: icon('ic-cate'),
   customer: icon('ic-customer'),
+  supplier: icon('ic-supplier'),
 };
 
 // ----------------------------------------------------------------------
@@ -99,7 +100,7 @@ export const navData: NavSectionProps['data'] = [
       },
       {
         title: 'Customer',
-        path: '',
+        path: paths.dashboard.customer.list,
         icon: ICONS.customer,
         children: [
           { title: 'List', path: paths.dashboard.customer.list },
@@ -117,6 +118,17 @@ export const navData: NavSectionProps['data'] = [
           { title: 'Details', path: paths.dashboard.product.demo.details },
           { title: 'Create', path: paths.dashboard.product.new },
           { title: 'Edit', path: paths.dashboard.product.demo.edit },
+        ],
+      },
+      {
+        title: 'Supplier',
+        path: paths.dashboard.supplier.root,
+        icon: ICONS.supplier,
+        children: [
+          { title: 'List', path: paths.dashboard.supplier.root },
+          { title: 'Details', path: '' },
+          { title: 'Create', path: '' },
+          { title: 'Edit', path: '' },
         ],
       },
       {

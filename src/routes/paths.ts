@@ -132,6 +132,10 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/product/${MOCK_ID}/edit`,
       },
     },
+    supplier: {
+      root: `${ROOTS.DASHBOARD}/supplier`,
+      // list: `${ROOTS.DASHBOARD}/supplier/list`,
+    },
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,
       new: `${ROOTS.DASHBOARD}/invoice/new`,
