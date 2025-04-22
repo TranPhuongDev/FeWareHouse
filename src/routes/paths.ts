@@ -106,6 +106,7 @@ export const paths = {
       booking: `${ROOTS.DASHBOARD}/booking`,
       file: `${ROOTS.DASHBOARD}/file`,
       course: `${ROOTS.DASHBOARD}/course`,
+      category: `${ROOTS.DASHBOARD}/category`,
     },
     user: {
       root: `${ROOTS.DASHBOARD}/user`,
@@ -117,6 +118,10 @@ export const paths = {
       edit: (id: string) => `${ROOTS.DASHBOARD}/user/${id}/edit`,
       demo: { edit: `${ROOTS.DASHBOARD}/user/${MOCK_ID}/edit` },
     },
+    customer: {
+      root: `${ROOTS.DASHBOARD}/customer`,
+      list: `${ROOTS.DASHBOARD}/customer/list`,
+    },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,
       new: `${ROOTS.DASHBOARD}/product/new`,
@@ -126,6 +131,10 @@ export const paths = {
         details: `${ROOTS.DASHBOARD}/product/${MOCK_ID}`,
         edit: `${ROOTS.DASHBOARD}/product/${MOCK_ID}/edit`,
       },
+    },
+    supplier: {
+      root: `${ROOTS.DASHBOARD}/supplier`,
+      // list: `${ROOTS.DASHBOARD}/supplier/list`,
     },
     invoice: {
       root: `${ROOTS.DASHBOARD}/invoice`,

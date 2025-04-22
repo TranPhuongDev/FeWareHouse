@@ -41,6 +41,9 @@ const ICONS = {
   analytics: icon('ic-analytics'),
   dashboard: icon('ic-dashboard'),
   parameter: icon('ic-parameter'),
+  category: icon('ic-cate'),
+  customer: icon('ic-customer'),
+  supplier: icon('ic-supplier'),
 };
 
 // ----------------------------------------------------------------------
@@ -73,6 +76,7 @@ export const navData: NavSectionProps['data'] = [
       { title: 'Booking', path: paths.dashboard.general.booking, icon: ICONS.booking },
       { title: 'File', path: paths.dashboard.general.file, icon: ICONS.file },
       { title: 'Course', path: paths.dashboard.general.course, icon: ICONS.course },
+      { title: 'Category', path: paths.dashboard.general.category, icon: ICONS.category },
     ],
   },
   /**
@@ -95,6 +99,17 @@ export const navData: NavSectionProps['data'] = [
         ],
       },
       {
+        title: 'Customer',
+        path: paths.dashboard.customer.list,
+        icon: ICONS.customer,
+        children: [
+          { title: 'List', path: paths.dashboard.customer.list },
+          { title: 'Create', path: '' },
+          { title: 'Edit', path: '' },
+          { title: 'Customer', path: '' },
+        ],
+      },
+      {
         title: 'Product',
         path: paths.dashboard.product.root,
         icon: ICONS.product,
@@ -103,6 +118,17 @@ export const navData: NavSectionProps['data'] = [
           { title: 'Details', path: paths.dashboard.product.demo.details },
           { title: 'Create', path: paths.dashboard.product.new },
           { title: 'Edit', path: paths.dashboard.product.demo.edit },
+        ],
+      },
+      {
+        title: 'Supplier',
+        path: paths.dashboard.supplier.root,
+        icon: ICONS.supplier,
+        children: [
+          { title: 'List', path: paths.dashboard.supplier.root },
+          { title: 'Details', path: '' },
+          { title: 'Create', path: '' },
+          { title: 'Edit', path: '' },
         ],
       },
       {

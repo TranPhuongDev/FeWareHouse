@@ -1,7 +1,8 @@
 'use client';
 
 import type { TableHeadCellProps } from 'src/components/table';
-import type { IUserItem, IUserTableFilters } from 'src/types/user';
+// import type { IUserItem, IUserTableFilters } from 'src/types/user';
+import type { IUserTableFilters } from 'src/types/user';
 
 import { useState, useCallback } from 'react';
 import { varAlpha } from 'minimal-shared/utils';
@@ -21,7 +22,7 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _roles, _userList, USER_STATUS_OPTIONS } from 'src/_mock';
+// import { _roles, _userList, USER_STATUS_OPTIONS } from 'src/_mock';
 
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
@@ -40,34 +41,103 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+import { label } from 'yet-another-react-lightbox';
+import { add } from '@dnd-kit/utilities';
+import { CustomerTableToolbar } from '../customer-table-toolbar';
+import { CustomerTableFiltersResult } from '../customer-table-filter-result';
+import { CustomerTableRow } from '../customer-table-row';
 
-import { UserTableRow } from '../user-table-row';
-import { UserTableToolbar } from '../user-table-toolbar';
-import { UserTableFiltersResult } from '../user-table-filters-result';
+// import { UserTableToolbar } from '../user-table-toolbar';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
+// const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
+
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'All' },
+  { value: 'silver', label: 'Silver' },
+  { value: 'gold', label: 'Gold' },
+  { value: 'platinum', label: 'Platinum' },
+  { value: 'diamond', label: 'Diamond' },
+];
 
 const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'name', label: 'Name' },
-  { id: 'phoneNumber', label: 'Phone number', width: 180 },
-  { id: 'company', label: 'Company', width: 220 },
-  { id: 'role', label: 'Role', width: 180 },
+  { id: 'address', label: 'Address', width: 360 },
+  { id: 'phone', label: 'Phone', width: 220 },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
 ];
 
 // ----------------------------------------------------------------------
 
-export function UserListView() {
+interface ICustomerItem {
+  id: string;
+  customerName: string;
+  address: string;
+  phone: string;
+  status: string; // Ví dụ về các trạng thái
+}
+
+const _customerList: ICustomerItem[] = [
+  {
+    id: '1',
+    customerName: 'Nguyễn Văn A',
+    address: '123 Đường ABC, Quận 1, TP.HCM',
+    phone: '0901234567',
+    status: 'silver',
+  },
+  {
+    id: '2',
+    customerName: 'Trần Thị B',
+    address: '456 Đường XYZ, Quận 3, TP.HCM',
+    phone: '0987654321',
+    status: 'gold',
+  },
+  {
+    id: '3',
+    customerName: 'Lê Văn C',
+    address: '789 Đường UVW, Quận 5, TP.HCM',
+    phone: '0911223344',
+    status: 'gold',
+  },
+  {
+    id: '4',
+    customerName: 'Phạm Thị D',
+    address: '101 Đường RST, Quận 7, TP.HCM',
+    phone: '0933445566',
+    status: 'platinum',
+  },
+  {
+    id: '5',
+    customerName: 'Phạm Thị F',
+    address: '101 Đường RST, Quận 7, TP.HCM',
+    phone: '0933445566',
+    status: 'diamond',
+  },
+  // Thêm các đối tượng IUserItem khác nếu cần
+];
+
+interface ICustomerTableFilters {
+  customerName: string;
+  address: string;
+  phone: string;
+  status: string;
+}
+
+export function CustomerListView() {
   const table = useTable();
 
   const confirmDialog = useBoolean();
 
-  const [tableData, setTableData] = useState<IUserItem[]>(_userList);
+  const [tableData, setTableData] = useState<ICustomerItem[]>(_customerList);
 
-  const filters = useSetState<IUserTableFilters>({ name: '', role: [], status: 'all' });
+  const filters = useSetState<ICustomerTableFilters>({
+    customerName: '',
+    address: '',
+    phone: '',
+    status: 'all',
+  });
   const { state: currentFilters, setState: updateFilters } = filters;
 
   const dataFiltered = applyFilter({
@@ -76,35 +146,34 @@ export function UserListView() {
     filters: currentFilters,
   });
 
-  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
+  // const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
-  const canReset =
-    !!currentFilters.name || currentFilters.role.length > 0 || currentFilters.status !== 'all';
+  const canReset = !!currentFilters.customerName || currentFilters.status !== 'all';
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleDeleteRow = useCallback(
-    (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
+  // const handleDeleteRow = useCallback(
+  //   (id: string) => {
+  //     const deleteRow = tableData.filter((row) => row.id !== id);
 
-      toast.success('Delete success!');
+  //     toast.success('Delete success!');
 
-      setTableData(deleteRow);
+  //     setTableData(deleteRow);
 
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
+  //     table.onUpdatePageDeleteRow(dataInPage.length);
+  //   },
+  //   [dataInPage.length, table, tableData]
+  // );
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
+  // const handleDeleteRows = useCallback(() => {
+  //   const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
 
-    toast.success('Delete success!');
+  //   toast.success('Delete success!');
 
-    setTableData(deleteRows);
+  //   setTableData(deleteRows);
 
-    table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  //   table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
+  // }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
@@ -128,10 +197,10 @@ export function UserListView() {
         <Button
           variant="contained"
           color="error"
-          onClick={() => {
-            handleDeleteRows();
-            confirmDialog.onFalse();
-          }}
+          // onClick={() => {
+          //   handleDeleteRows();
+          //   confirmDialog.onFalse();
+          // }}
         >
           Delete
         </Button>
@@ -143,16 +212,16 @@ export function UserListView() {
     <>
       <DashboardContent>
         <CustomBreadcrumbs
-          heading="List Demo"
+          heading="List Customer"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'User', href: paths.dashboard.user.root },
+            { name: 'Customer', href: '' },
             { name: 'List' },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.user.new}
+              href=""
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
@@ -186,14 +255,14 @@ export function UserListView() {
                       'soft'
                     }
                     color={
-                      (tab.value === 'active' && 'success') ||
-                      (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'banned' && 'error') ||
+                      (tab.value === 'silver' && 'success') ||
+                      (tab.value === 'gold' && 'warning') ||
+                      (tab.value === 'platinum' && 'error') ||
                       'default'
                     }
                   >
-                    {['active', 'pending', 'banned', 'rejected'].includes(tab.value)
-                      ? tableData.filter((user) => user.status === tab.value).length
+                    {['silver', 'gold', 'platinum', 'diamond'].includes(tab.value)
+                      ? tableData.filter((cus) => cus.status === tab.value).length
                       : tableData.length}
                   </Label>
                 }
@@ -201,14 +270,14 @@ export function UserListView() {
             ))}
           </Tabs>
 
-          <UserTableToolbar
+          <CustomerTableToolbar
             filters={filters}
             onResetPage={table.onResetPage}
-            options={{ roles: _roles }}
+            // options="{{ roles: _roles }}"
           />
 
           {canReset && (
-            <UserTableFiltersResult
+            <CustomerTableFiltersResult
               filters={filters}
               totalResults={dataFiltered.length}
               onResetPage={table.onResetPage}
@@ -227,6 +296,7 @@ export function UserListView() {
                   dataFiltered.map((row) => row.id)
                 )
               }
+              // onSelectAllRows={() => console.log('HI')}
               action={
                 <Tooltip title="Delete">
                   <IconButton color="primary" onClick={confirmDialog.onTrue}>
@@ -244,7 +314,7 @@ export function UserListView() {
                   headCells={TABLE_HEAD}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
-                  onSort={table.onSort}
+                  // onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
@@ -260,13 +330,13 @@ export function UserListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <UserTableRow
+                      <CustomerTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        editHref={paths.dashboard.user.edit(row.id)}
+                        onDeleteRow={() => console.log(row.id)}
+                        editHref={'paths.dashboard.user.edit(row.id)'}
                       />
                     ))}
 
@@ -301,13 +371,13 @@ export function UserListView() {
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-  inputData: IUserItem[];
-  filters: IUserTableFilters;
+  inputData: ICustomerItem[];
+  filters: ICustomerTableFilters;
   comparator: (a: any, b: any) => number;
 };
 
 function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
-  const { name, status, role } = filters;
+  const { customerName, status } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
@@ -319,17 +389,19 @@ function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (name) {
-    inputData = inputData.filter((user) => user.name.toLowerCase().includes(name.toLowerCase()));
+  if (customerName) {
+    inputData = inputData.filter((cus) =>
+      cus.customerName.toLowerCase().includes(customerName.toLowerCase())
+    );
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((user) => user.status === status);
+    inputData = inputData.filter((cus) => cus.status === status);
   }
 
-  if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.role));
-  }
+  // if (address.length) {
+  //   inputData = inputData.filter((cus) => cus.includes(cus.address));
+  // }
 
   return inputData;
 }
