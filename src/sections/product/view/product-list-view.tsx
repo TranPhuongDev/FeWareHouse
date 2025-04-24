@@ -65,12 +65,104 @@ const HIDE_COLUMNS = { category: false };
 
 const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
 
+export const products: IProductItem[] = [
+  {
+    id: 'product_6',
+    sku: 'SKU006',
+    name: 'Chân Váy Bút Chì',
+    code: 'CVBC06',
+    price: 49.0,
+    taxes: 4.9,
+    tags: ['skirt', 'pencil', 'office'],
+    sizes: ['S', 'M', 'L'],
+    publish: '2024-04-23T08:30:00Z',
+    gender: ['female'],
+    coverUrl: '/images/products/pencil-skirt-cover.jpg',
+    images: ['/images/products/pencil-skirt-1.jpg', '/images/products/pencil-skirt-2.jpg'],
+    colors: ['black', 'navy', 'gray'],
+    quantity: 70,
+    category: 'Bottoms',
+    available: 55,
+    totalSold: 15,
+    description: 'Chân váy bút chì thanh lịch, phù hợp cho môi trường công sở.',
+    totalRatings: 4.7,
+    totalReviews: 60,
+    createdAt: '2024-04-23',
+    inventoryType: 'out_of_stock',
+    subDescription: 'Tôn dáng, dễ phối đồ.',
+    priceSale: null,
+    reviews: [
+      {
+        id: 'review_123',
+        name: 'Alice Wonderland',
+        rating: 5,
+        comment: 'Sản phẩm tuyệt vời! Chất lượng vượt mong đợi, giao hàng nhanh chóng.',
+        helpful: 15,
+        avatarUrl: '/images/avatars/avatar_1.jpg',
+        postedAt: '2024-04-23',
+        isPurchased: true,
+        attachments: ['/images/reviews/review_123_1.jpg', '/images/reviews/review_123_2.jpg'],
+      },
+    ],
+    newLabel: { content: '', enabled: false },
+    saleLabel: { content: '', enabled: false },
+    ratings: [
+      { name: '5 Star', starCount: 45, reviewCount: 45 },
+      { name: '4 Star', starCount: 15, reviewCount: 15 },
+    ],
+  },
+  {
+    id: 'product_7',
+    sku: 'SKU007',
+    name: 'Áo Khoác Bomber',
+    code: 'AKB07',
+    price: 89.99,
+    taxes: 9.0,
+    tags: ['jacket', 'bomber', 'casual'],
+    sizes: ['M', 'L', 'XL'],
+    publish: '2024-04-19T12:00:00Z',
+    gender: ['male'],
+    coverUrl: '/images/products/bomber-jacket-cover.jpg',
+    images: ['/images/products/bomber-jacket-1.jpg', '/images/products/bomber-jacket-2.jpg'],
+    colors: ['black', 'olive'],
+    quantity: 60,
+    category: 'Outerwear',
+    available: 40,
+    totalSold: 20,
+    description: 'Áo khoác bomber стильный, giữ ấm tốt.',
+    totalRatings: 4.4,
+    totalReviews: 30,
+    createdAt: '2024-04-23',
+    inventoryType: 'in_stock',
+    subDescription: 'Phù hợp cho nhiều phong cách.',
+    priceSale: 79.99,
+    reviews: [
+      {
+        id: 'review_123',
+        name: 'Alice Wonderland',
+        rating: 5,
+        comment: 'Sản phẩm tuyệt vời! Chất lượng vượt mong đợi, giao hàng nhanh chóng.',
+        helpful: 15,
+        avatarUrl: '/images/avatars/avatar_1.jpg',
+        postedAt: '2024-04-23',
+        isPurchased: true,
+        attachments: ['/images/reviews/review_123_1.jpg', '/images/reviews/review_123_2.jpg'],
+      },
+    ],
+    newLabel: { content: '', enabled: false },
+    saleLabel: { content: 'Sale 11%', enabled: true },
+    ratings: [
+      { name: '5 Star', starCount: 20, reviewCount: 20 },
+      { name: '4 Star', starCount: 10, reviewCount: 10 },
+    ],
+  },
+];
 // ----------------------------------------------------------------------
 
 export function ProductListView() {
   const confirmDialog = useBoolean();
 
-  const { products, productsLoading } = useGetProducts();
+  // const { products, productsLoading } = useGetProducts();
 
   const [tableData, setTableData] = useState<IProductItem[]>(products);
   const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
@@ -272,7 +364,7 @@ export function ProductListView() {
             disableRowSelectionOnClick
             rows={dataFiltered}
             columns={columns}
-            loading={productsLoading}
+            // loading={productsLoading}
             getRowHeight={() => 'auto'}
             pageSizeOptions={[5, 10, 20, { value: -1, label: 'All' }]}
             initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}

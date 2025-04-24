@@ -21,13 +21,15 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover } from 'src/components/custom-popover';
+import { CustomerQuickEditForm } from './customer-quick-edit-form';
 
 // import { UserQuickEditForm } from './user-quick-edit-form';
 
 // ----------------------------------------------------------------------
 interface ICustomerItem {
-  id: string;
+  customerID: string;
   customerName: string;
+  email: string;
   address: string;
   phone: string;
   status: string; // Ví dụ về các trạng thái
@@ -45,13 +47,13 @@ export function CustomerTableRow({ row, selected, editHref, onSelectRow, onDelet
   const confirmDialog = useBoolean();
   const quickEditForm = useBoolean();
 
-  //   const renderQuickEditForm = () => (
-  //     <UserQuickEditForm
-  //       currentUser={row}
-  //       open={quickEditForm.value}
-  //       onClose={quickEditForm.onFalse}
-  //     />
-  //   );
+  const renderQuickEditForm = () => (
+    <CustomerQuickEditForm
+      currentCustomer={row}
+      open={quickEditForm.value}
+      onClose={quickEditForm.onFalse}
+    />
+  );
 
   const renderMenuActions = () => (
     <CustomPopover
@@ -105,8 +107,8 @@ export function CustomerTableRow({ row, selected, editHref, onSelectRow, onDelet
             onClick={onSelectRow}
             slotProps={{
               input: {
-                id: `${row.id}-checkbox`,
-                'aria-label': `${row.id} checkbox`,
+                id: `${row.customerID}-checkbox`,
+                'aria-label': `${row.customerID} checkbox`,
               },
             }}
           />
@@ -131,12 +133,11 @@ export function CustomerTableRow({ row, selected, editHref, onSelectRow, onDelet
             </Stack>
           </Box>
         </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.email}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.address}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.phone}</TableCell>
-
-        {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.status}</TableCell> */}
 
         <TableCell>
           <Label
@@ -173,7 +174,7 @@ export function CustomerTableRow({ row, selected, editHref, onSelectRow, onDelet
         </TableCell>
       </TableRow>
 
-      {/* {renderQuickEditForm()} */}
+      {renderQuickEditForm()}
       {renderMenuActions()}
       {renderConfirmDialog()}
     </>

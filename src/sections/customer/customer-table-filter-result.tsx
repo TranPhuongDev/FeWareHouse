@@ -12,6 +12,7 @@ import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-r
 interface ICustomerTableFilters {
   customerName: string;
   address: string;
+  email: string;
   phone: string;
   status: string;
 }
