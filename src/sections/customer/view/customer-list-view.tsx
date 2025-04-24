@@ -4,7 +4,7 @@ import type { TableHeadCellProps } from 'src/components/table';
 // import type { IUserItem, IUserTableFilters } from 'src/types/user';
 import type { IUserTableFilters } from 'src/types/user';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { varAlpha } from 'minimal-shared/utils';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
@@ -46,6 +46,7 @@ import { add } from '@dnd-kit/utilities';
 import { CustomerTableToolbar } from '../customer-table-toolbar';
 import { CustomerTableFiltersResult } from '../customer-table-filter-result';
 import { CustomerTableRow } from '../customer-table-row';
+import axios from 'axios';
 
 // import { UserTableToolbar } from '../user-table-toolbar';
 
@@ -63,7 +64,8 @@ const STATUS_OPTIONS = [
 
 const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'name', label: 'Name' },
-  { id: 'address', label: 'Address', width: 360 },
+  { id: 'email', label: 'Email', width: 180 },
+  { id: 'address', label: 'Address', width: 180 },
   { id: 'phone', label: 'Phone', width: 220 },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
@@ -72,55 +74,78 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 // ----------------------------------------------------------------------
 
 interface ICustomerItem {
-  id: string;
+  customerID: string;
   customerName: string;
+  email: string;
   address: string;
   phone: string;
   status: string; // Ví dụ về các trạng thái
 }
 
-const _customerList: ICustomerItem[] = [
-  {
-    id: '1',
-    customerName: 'Nguyễn Văn A',
-    address: '123 Đường ABC, Quận 1, TP.HCM',
-    phone: '0901234567',
-    status: 'silver',
-  },
-  {
-    id: '2',
-    customerName: 'Trần Thị B',
-    address: '456 Đường XYZ, Quận 3, TP.HCM',
-    phone: '0987654321',
-    status: 'gold',
-  },
-  {
-    id: '3',
-    customerName: 'Lê Văn C',
-    address: '789 Đường UVW, Quận 5, TP.HCM',
-    phone: '0911223344',
-    status: 'gold',
-  },
-  {
-    id: '4',
-    customerName: 'Phạm Thị D',
-    address: '101 Đường RST, Quận 7, TP.HCM',
-    phone: '0933445566',
-    status: 'platinum',
-  },
-  {
-    id: '5',
-    customerName: 'Phạm Thị F',
-    address: '101 Đường RST, Quận 7, TP.HCM',
-    phone: '0933445566',
-    status: 'diamond',
-  },
-  // Thêm các đối tượng IUserItem khác nếu cần
-];
+// const _customerList: ICustomerItem[] = [
+//   {
+//     id: '1',
+//     customerName: 'Nguyễn Văn A',
+//     address: '123 Đường ABC, Quận 1, TP.HCM',
+//     phone: '0901234567',
+//     status: 'silver',
+//     email: 'VanA@gmail.com',
+//   },
+//   {
+//     id: '2',
+//     customerName: 'Trần Thị B',
+//     address: '456 Đường XYZ, Quận 3, TP.HCM',
+//     phone: '0987654321',
+//     status: 'gold',
+//     email: 'VanA@gmail.com',
+//   },
+//   {
+//     id: '3',
+//     customerName: 'Lê Văn C',
+//     address: '789 Đường UVW, Quận 5, TP.HCM',
+//     phone: '0911223344',
+//     status: 'gold',
+//     email: 'VanA@gmail.com',
+//   },
+//   {
+//     id: '4',
+//     customerName: 'Phạm Thị D',
+//     address: '101 Đường RST, Quận 7, TP.HCM',
+//     phone: '0933445566',
+//     status: 'platinum',
+//     email: 'VanA@gmail.com',
+//   },
+//   {
+//     id: '5',
+//     customerName: 'Phạm Thị F',
+//     address: '101 Đường RST, Quận 7, TP.HCM',
+//     phone: '0933445566',
+//     status: 'diamond',
+//     email: 'VanA@gmail.com',
+//   },
+//   // Thêm các đối tượng IUserItem khác nếu cần
+//   {
+//     id: '6',
+//     customerName: 'Phạm Thị D',
+//     address: '101 Đường RST, Quận 7, TP.HCM',
+//     phone: '0933445566',
+//     status: 'platinum',
+//     email: 'VanA@gmail.com',
+//   },
+//   {
+//     id: '7',
+//     customerName: 'Phạm Thị F',
+//     address: '101 Đường RST, Quận 7, TP.HCM',
+//     phone: '0933445566',
+//     status: 'diamond',
+//     email: 'VanA@gmail.com',
+//   },
+// ];
 
 interface ICustomerTableFilters {
   customerName: string;
   address: string;
+  email: string;
   phone: string;
   status: string;
 }
@@ -130,10 +155,11 @@ export function CustomerListView() {
 
   const confirmDialog = useBoolean();
 
-  const [tableData, setTableData] = useState<ICustomerItem[]>(_customerList);
+  const [tableData, setTableData] = useState<ICustomerItem[]>([]);
 
   const filters = useSetState<ICustomerTableFilters>({
     customerName: '',
+    email: '',
     address: '',
     phone: '',
     status: 'all',
@@ -146,24 +172,51 @@ export function CustomerListView() {
     filters: currentFilters,
   });
 
-  // const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
+  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset = !!currentFilters.customerName || currentFilters.status !== 'all';
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  // const handleDeleteRow = useCallback(
-  //   (id: string) => {
-  //     const deleteRow = tableData.filter((row) => row.id !== id);
+  useEffect(() => {
+    async function fetchData() {
+      const url = 'http://localhost:8080/api/customers';
+      try {
+        const dataCustomer = await axios.get(url);
+        console.log('Customer Data:', dataCustomer.data.customers);
+        setTableData(dataCustomer.data.customers);
+      } catch (error) {
+        console.error('Error fetching supplier data:', error);
+      }
+    }
 
-  //     toast.success('Delete success!');
+    fetchData();
+  }, []);
 
-  //     setTableData(deleteRow);
+  const handleDeleteRow = useCallback(
+    async (customerID: string) => {
+      const apiUrl = `http://localhost:8080/api/customers/${customerID}`;
 
-  //     table.onUpdatePageDeleteRow(dataInPage.length);
-  //   },
-  //   [dataInPage.length, table, tableData]
-  // );
+      try {
+        const response = await axios.delete(apiUrl);
+
+        if (response.status === 204) {
+          const updatedTableData = tableData.filter((row) => row.customerID !== customerID);
+          setTableData(updatedTableData);
+          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
+            loading: 'Loading...',
+            success: 'Delete success!',
+            error: 'Update error!',
+          });
+        } else {
+          toast.error(`Delete failed with status: ${response.status}`);
+        }
+      } catch (error) {
+        toast.error('Delete failed!');
+      }
+    },
+    [setTableData, tableData]
+  );
 
   // const handleDeleteRows = useCallback(() => {
   //   const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
@@ -221,11 +274,11 @@ export function CustomerListView() {
           action={
             <Button
               component={RouterLink}
-              href=""
+              href={paths.dashboard.customer.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New user
+              New customer
             </Button>
           }
           sx={{ mb: { xs: 3, md: 5 } }}
@@ -293,7 +346,7 @@ export function CustomerListView() {
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row.id)
+                  dataFiltered.map((row) => row.customerID)
                 )
               }
               // onSelectAllRows={() => console.log('HI')}
@@ -314,11 +367,11 @@ export function CustomerListView() {
                   headCells={TABLE_HEAD}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
-                  // onSort={table.onSort}
+                  onSort={table.onSort}
                   onSelectAllRows={(checked) =>
                     table.onSelectAllRows(
                       checked,
-                      dataFiltered.map((row) => row.id)
+                      dataFiltered.map((row) => row.customerID)
                     )
                   }
                 />
@@ -331,12 +384,12 @@ export function CustomerListView() {
                     )
                     .map((row) => (
                       <CustomerTableRow
-                        key={row.id}
+                        key={row.customerID}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => console.log(row.id)}
-                        editHref={'paths.dashboard.user.edit(row.id)'}
+                        selected={table.selected.includes(row.customerID)}
+                        onSelectRow={() => table.onSelectRow(row.customerID)}
+                        onDeleteRow={() => handleDeleteRow(row.customerID)}
+                        editHref={paths.dashboard.customer.edit(row.customerID)}
                       />
                     ))}
 
