@@ -10,7 +10,7 @@ import { CONFIG } from 'src/global-config';
 
 import { AuthContext } from '../auth-context';
 
-import type { AuthState } from '../../types';
+import type { AuthState } from '../../../../../../DevWare/FeWare/src/auth/types';
 
 // ----------------------------------------------------------------------
 

@@ -10,7 +10,7 @@ import { AUTH, FIRESTORE } from 'src/lib/firebase';
 
 import { AuthContext } from '../auth-context';
 
-import type { AuthState } from '../../types';
+import type { AuthState } from '../../../../../../DevWare/FeWare/src/auth/types';
 
 // ----------------------------------------------------------------------
 

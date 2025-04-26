@@ -9,12 +9,12 @@ import { JWT_STORAGE_KEY } from './constant';
 
 export type SignInParams = {
   email: string;
-  passWord: string;
+  password: string;
 };
 
 export type SignUpParams = {
   email: string;
-  passWord: string;
+  password: string;
   firstName: string;
   lastName: string;
 };
@@ -22,15 +22,13 @@ export type SignUpParams = {
 /** **************************************
  * Sign in
  *************************************** */
-export const signInWithPassword = async ({ email, passWord }: SignInParams): Promise<void> => {
+export const signInWithPassword = async ({ email, password }: SignInParams): Promise<void> => {
   try {
-    const params = { email, passWord };
+    const params = { email, password };
 
     const res = await axios.post(endpoints.auth.signIn, params);
 
     const { accessToken } = res.data;
-
-    
 
     if (!accessToken) {
       throw new Error('Access token not found in response');
@@ -48,13 +46,13 @@ export const signInWithPassword = async ({ email, passWord }: SignInParams): Pro
  *************************************** */
 export const signUp = async ({
   email,
-  passWord,
+  password,
   firstName,
   lastName,
 }: SignUpParams): Promise<void> => {
   const params = {
     email,
-    passWord,
+    password,
     firstName,
     lastName,
   };

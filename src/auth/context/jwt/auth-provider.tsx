@@ -9,7 +9,7 @@ import { JWT_STORAGE_KEY } from './constant';
 import { AuthContext } from '../auth-context';
 import { setSession, isValidToken } from './utils';
 
-import type { AuthState } from '../../types';
+import type { AuthState } from '../../../../../../DevWare/FeWare/src/auth/types';
 
 // ----------------------------------------------------------------------
 

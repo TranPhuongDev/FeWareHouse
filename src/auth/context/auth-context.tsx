@@ -2,7 +2,7 @@
 
 import { createContext } from 'react';
 
-import type { AuthContextValue } from '../types';
+import type { AuthContextValue } from '../../../../../DevWare/FeWare/src/auth/types';
 
 // ----------------------------------------------------------------------
 
