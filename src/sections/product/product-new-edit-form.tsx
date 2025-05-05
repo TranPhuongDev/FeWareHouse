@@ -1,8 +1,8 @@
-import type { IProductItem } from 'src/types/product';
+import type { IProduct, IProductItem } from 'src/types/product';
 
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -23,92 +23,86 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import {
-  _tags,
-  PRODUCT_SIZE_OPTIONS,
-  PRODUCT_GENDER_OPTIONS,
-  PRODUCT_COLOR_NAME_OPTIONS,
-  PRODUCT_CATEGORY_GROUP_OPTIONS,
-} from 'src/_mock';
-
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import axios from 'axios';
+import { ICategoryItem } from 'src/types/category';
+import { ISupplierItem } from 'src/types/supplier';
+
+// export const CATEGORY_GROUP_OPTIONS = [
+//   { group: 'Clothing', classify: ['Shirts', 'T-shirts', 'Jeans', 'Leather', 'Accessories'] },
+//   { group: 'Tailored', classify: ['Suits', 'Blazers', 'Trousers', 'Waistcoats', 'Apparel'] },
+//   { group: 'Accessories', classify: ['Shoes', 'Backpacks and bags', 'Bracelets', 'Face masks'] },
+// ];
+// ----------------------------------------------------------------------
 
 // ----------------------------------------------------------------------
 
 export type NewProductSchemaType = zod.infer<typeof NewProductSchema>;
 
 export const NewProductSchema = zod.object({
-  name: zod.string().min(1, { message: 'Name is required!' }),
+  productName: zod.string().min(1, { message: 'Name is required!' }),
   description: schemaHelper
     .editor({ message: 'Description is required!' })
-    .min(100, { message: 'Description must be at least 100 characters' })
+    .min(5, { message: 'Description must be at least 5 characters' })
     .max(500, { message: 'Description must be less than 500 characters' }),
-  images: schemaHelper.files({ message: 'Images is required!' }),
-  code: zod.string().min(1, { message: 'Product code is required!' }),
-  sku: zod.string().min(1, { message: 'Product sku is required!' }),
-  quantity: schemaHelper.nullableInput(
-    zod.number({ coerce: true }).min(1, { message: 'Quantity is required!' }),
-    {
-      // message for null value
-      message: 'Quantity is required!',
-    }
-  ),
-  colors: zod.string().array().min(1, { message: 'Choose at least one option!' }),
-  sizes: zod.string().array().min(1, { message: 'Choose at least one option!' }),
-  tags: zod.string().array().min(2, { message: 'Must have at least 2 items!' }),
-  gender: zod.array(zod.string()).min(1, { message: 'Choose at least one option!' }),
-  price: schemaHelper.nullableInput(
-    zod.number({ coerce: true }).min(1, { message: 'Price is required!' }),
-    {
-      // message for null value
-      message: 'Price is required!',
-    }
-  ),
   // Not required
-  category: zod.string(),
-  subDescription: zod.string(),
-  taxes: zod.number({ coerce: true }).nullable(),
-  priceSale: zod.number({ coerce: true }).nullable(),
-  saleLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
-  newLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
+  unit: zod.string().min(1, { message: 'Name is required!' }),
+  importPrice: zod.number({ coerce: true }).nullable(),
+  salePrice: zod.number({ coerce: true }).nullable(),
+  categoryID: zod.string(),
+  supplierID: zod.string(),
 });
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  currentProduct?: IProductItem;
+  currentProduct?: IProduct;
 };
 
 export function ProductNewEditForm({ currentProduct }: Props) {
   const router = useRouter();
-
+  const [dateCate, setDataCate] = useState<ICategoryItem[]>([]);
+  const [dataSup, setDataSup] = useState<ISupplierItem[]>([]);
   const openDetails = useBoolean(true);
-  const openProperties = useBoolean(true);
-  const openPricing = useBoolean(true);
 
-  const [includeTaxes, setIncludeTaxes] = useState(false);
+  // ----------------------------------------------------------------------
+  useEffect(() => {
+    async function fetchCategoryData() {
+      const url = 'http://localhost:8080/api/categories';
+      try {
+        const dataCategory = await axios.get(url);
+        console.log('Category Data:', dataCategory.data.categories);
+        setDataCate(dataCategory.data.categories);
+      } catch (error) {
+        console.error('Error fetching category data:', error);
+      }
+    }
+    async function fetchSupllierData() {
+      const url = 'http://localhost:8080/api/suppliers';
+      try {
+        const dataSupplier = await axios.get(url);
+        console.log('Supplier Data:', dataSupplier.data.suppliers);
+        setDataSup(dataSupplier.data.suppliers);
+      } catch (error) {
+        console.error('Error fetching supplier data:', error);
+      }
+    }
 
+    fetchSupllierData();
+    fetchCategoryData();
+  }, []);
+
+  // ----------------------------------------------------------------------
   const defaultValues: NewProductSchemaType = {
-    name: '',
+    productName: '',
     description: '',
-    subDescription: '',
-    images: [],
-    /********/
-    code: '',
-    sku: '',
-    price: null,
-    taxes: null,
-    priceSale: null,
-    quantity: null,
-    tags: [],
-    gender: [],
-    category: PRODUCT_CATEGORY_GROUP_OPTIONS[0].classify[1],
-    colors: [],
-    sizes: [],
-    newLabel: { enabled: false, content: '' },
-    saleLabel: { enabled: false, content: '' },
+    unit: '',
+    importPrice: null,
+    salePrice: null,
+    categoryID: '',
+    supplierID: '',
   };
 
   const methods = useForm<NewProductSchemaType>({
@@ -119,46 +113,32 @@ export function ProductNewEditForm({ currentProduct }: Props) {
 
   const {
     reset,
-    watch,
-    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
-  const values = watch();
-
   const onSubmit = handleSubmit(async (data) => {
-    const updatedData = {
-      ...data,
-      taxes: includeTaxes ? defaultValues.taxes : data.taxes,
-    };
+    console.log('Data Update', data);
+    const apiUrl = currentProduct
+      ? `http://localhost:8080/api/products/${currentProduct.supplierID}` // API cho cập nhật (patch)
+      : 'http://localhost:8080/api/products'; // API cho tạo mới (POST)
 
+    const method = currentProduct ? 'patch' : 'post';
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await axios({
+        method,
+        url: apiUrl,
+        data: data,
+      });
+
+      console.log('Response from API:', response.data);
       reset();
       toast.success(currentProduct ? 'Update success!' : 'Create success!');
       router.push(paths.dashboard.product.root);
-      console.info('DATA', updatedData);
     } catch (error) {
       console.error(error);
     }
   });
-
-  const handleRemoveFile = useCallback(
-    (inputFile: File | string) => {
-      const filtered = values.images && values.images?.filter((file) => file !== inputFile);
-      setValue('images', filtered);
-    },
-    [setValue, values.images]
-  );
-
-  const handleRemoveAllFiles = useCallback(() => {
-    setValue('images', [], { shouldValidate: true });
-  }, [setValue]);
-
-  const handleChangeIncludeTaxes = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setIncludeTaxes(event.target.checked);
-  }, []);
 
   const renderCollapseButton = (value: boolean, onToggle: () => void) => (
     <IconButton onClick={onToggle}>
@@ -170,7 +150,7 @@ export function ProductNewEditForm({ currentProduct }: Props) {
     <Card>
       <CardHeader
         title="Details"
-        subheader="Title, short description, image..."
+        subheader="Title, description..."
         action={renderCollapseButton(openDetails.value, openDetails.onToggle)}
         sx={{ mb: 3 }}
       />
@@ -179,43 +159,10 @@ export function ProductNewEditForm({ currentProduct }: Props) {
         <Divider />
 
         <Stack spacing={3} sx={{ p: 3 }}>
-          <Field.Text name="name" label="Product name" />
+          <Field.Text name="productName" label="Product name" />
 
-          <Field.Text name="subDescription" label="Sub description" multiline rows={4} />
-
-          <Stack spacing={1.5}>
-            <Typography variant="subtitle2">Content</Typography>
-            <Field.Editor name="description" sx={{ maxHeight: 480 }} />
-          </Stack>
-
-          <Stack spacing={1.5}>
-            <Typography variant="subtitle2">Images</Typography>
-            <Field.Upload
-              multiple
-              thumbnail
-              name="images"
-              maxSize={3145728}
-              onRemove={handleRemoveFile}
-              onRemoveAll={handleRemoveAllFiles}
-              onUpload={() => console.info('ON UPLOAD')}
-            />
-          </Stack>
+          <Field.Text name="description" label="Description" multiline rows={2} />
         </Stack>
-      </Collapse>
-    </Card>
-  );
-
-  const renderProperties = () => (
-    <Card>
-      <CardHeader
-        title="Properties"
-        subheader="Additional functions and attributes..."
-        action={renderCollapseButton(openProperties.value, openProperties.onToggle)}
-        sx={{ mb: 3 }}
-      />
-
-      <Collapse in={openProperties.value}>
-        <Divider />
 
         <Stack spacing={3} sx={{ p: 3 }}>
           <Box
@@ -226,177 +173,9 @@ export function ProductNewEditForm({ currentProduct }: Props) {
               gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
             }}
           >
-            <Field.Text name="code" label="Product code" />
-
-            <Field.Text name="sku" label="Product SKU" />
-
             <Field.Text
-              name="quantity"
-              label="Quantity"
-              placeholder="0"
-              type="number"
-              slotProps={{ inputLabel: { shrink: true } }}
-            />
-
-            <Field.Select
-              name="category"
-              label="Category"
-              slotProps={{
-                select: { native: true },
-                inputLabel: { shrink: true },
-              }}
-            >
-              {PRODUCT_CATEGORY_GROUP_OPTIONS.map((category) => (
-                <optgroup key={category.group} label={category.group}>
-                  {category.classify.map((classify) => (
-                    <option key={classify} value={classify}>
-                      {classify}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </Field.Select>
-
-            <Field.MultiSelect
-              checkbox
-              name="colors"
-              label="Colors"
-              options={PRODUCT_COLOR_NAME_OPTIONS}
-            />
-
-            <Field.MultiSelect checkbox name="sizes" label="Sizes" options={PRODUCT_SIZE_OPTIONS} />
-          </Box>
-
-          <Field.Autocomplete
-            name="tags"
-            label="Tags"
-            placeholder="+ Tags"
-            multiple
-            freeSolo
-            disableCloseOnSelect
-            options={_tags.map((option) => option)}
-            getOptionLabel={(option) => option}
-            renderOption={(props, option) => (
-              <li {...props} key={option}>
-                {option}
-              </li>
-            )}
-            renderTags={(selected, getTagProps) =>
-              selected.map((option, index) => (
-                <Chip
-                  {...getTagProps({ index })}
-                  key={option}
-                  label={option}
-                  size="small"
-                  color="info"
-                  variant="soft"
-                />
-              ))
-            }
-          />
-
-          <Stack spacing={1}>
-            <Typography variant="subtitle2">Gender</Typography>
-            <Field.MultiCheckbox
-              row
-              name="gender"
-              options={PRODUCT_GENDER_OPTIONS}
-              sx={{ gap: 2 }}
-            />
-          </Stack>
-
-          <Divider sx={{ borderStyle: 'dashed' }} />
-
-          <Box sx={{ gap: 3, display: 'flex', alignItems: 'center' }}>
-            <Field.Switch name="saleLabel.enabled" label={null} sx={{ m: 0 }} />
-            <Field.Text
-              name="saleLabel.content"
-              label="Sale label"
-              fullWidth
-              disabled={!values.saleLabel.enabled}
-            />
-          </Box>
-
-          <Box sx={{ gap: 3, display: 'flex', alignItems: 'center' }}>
-            <Field.Switch name="newLabel.enabled" label={null} sx={{ m: 0 }} />
-            <Field.Text
-              name="newLabel.content"
-              label="New label"
-              fullWidth
-              disabled={!values.newLabel.enabled}
-            />
-          </Box>
-        </Stack>
-      </Collapse>
-    </Card>
-  );
-
-  const renderPricing = () => (
-    <Card>
-      <CardHeader
-        title="Pricing"
-        subheader="Price related inputs"
-        action={renderCollapseButton(openPricing.value, openPricing.onToggle)}
-        sx={{ mb: 3 }}
-      />
-
-      <Collapse in={openPricing.value}>
-        <Divider />
-
-        <Stack spacing={3} sx={{ p: 3 }}>
-          <Field.Text
-            name="price"
-            label="Regular price"
-            placeholder="0.00"
-            type="number"
-            slotProps={{
-              inputLabel: { shrink: true },
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start" sx={{ mr: 0.75 }}>
-                    <Box component="span" sx={{ color: 'text.disabled' }}>
-                      $
-                    </Box>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-
-          <Field.Text
-            name="priceSale"
-            label="Sale price"
-            placeholder="0.00"
-            type="number"
-            slotProps={{
-              inputLabel: { shrink: true },
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start" sx={{ mr: 0.75 }}>
-                    <Box component="span" sx={{ color: 'text.disabled' }}>
-                      $
-                    </Box>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-
-          <FormControlLabel
-            control={
-              <Switch
-                id="toggle-taxes"
-                checked={includeTaxes}
-                onChange={handleChangeIncludeTaxes}
-              />
-            }
-            label="Price includes taxes"
-          />
-
-          {!includeTaxes && (
-            <Field.Text
-              name="taxes"
-              label="Tax (%)"
+              name="importPrice"
+              label="Import price"
               placeholder="0.00"
               type="number"
               slotProps={{
@@ -405,34 +184,80 @@ export function ProductNewEditForm({ currentProduct }: Props) {
                   startAdornment: (
                     <InputAdornment position="start" sx={{ mr: 0.75 }}>
                       <Box component="span" sx={{ color: 'text.disabled' }}>
-                        %
+                        $
                       </Box>
                     </InputAdornment>
                   ),
                 },
               }}
             />
-          )}
+
+            <Field.Text
+              name="salePrice"
+              label="Sale price"
+              placeholder="0.00"
+              type="number"
+              slotProps={{
+                inputLabel: { shrink: true },
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start" sx={{ mr: 0.75 }}>
+                      <Box component="span" sx={{ color: 'text.disabled' }}>
+                        $
+                      </Box>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+            <Field.Text name="unit" label="Unit" />
+          </Box>
+        </Stack>
+        <Stack spacing={3} sx={{ p: 3 }}>
+          <Box
+            sx={{
+              rowGap: 3,
+              columnGap: 2,
+              display: 'grid',
+              gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
+            }}
+          >
+            <Field.Select
+              name="categoryID"
+              label="Category"
+              slotProps={{
+                select: { native: true },
+                inputLabel: { shrink: true },
+              }}
+            >
+              {dateCate.map((category) => (
+                <option key={category.categoryID} value={category.categoryID}>
+                  {category.categoryName}
+                </option>
+              ))}
+            </Field.Select>
+            <Field.Select
+              name="supplierID"
+              label="Supplier"
+              slotProps={{
+                select: { native: true },
+                inputLabel: { shrink: true },
+              }}
+            >
+              {dataSup.map((supplier) => (
+                <option key={supplier.supplierID} value={supplier.supplierID}>
+                  {supplier.supplierName}
+                </option>
+              ))}
+            </Field.Select>
+          </Box>
         </Stack>
       </Collapse>
     </Card>
   );
 
   const renderActions = () => (
-    <Box
-      sx={{
-        gap: 3,
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-      }}
-    >
-      <FormControlLabel
-        label="Publish"
-        control={<Switch defaultChecked slotProps={{ input: { id: 'publish-switch' } }} />}
-        sx={{ pl: 3, flexGrow: 1 }}
-      />
-
+    <Box>
       <Button type="submit" variant="contained" size="large" loading={isSubmitting}>
         {!currentProduct ? 'Create product' : 'Save changes'}
       </Button>
@@ -443,8 +268,6 @@ export function ProductNewEditForm({ currentProduct }: Props) {
     <Form methods={methods} onSubmit={onSubmit}>
       <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
         {renderDetails()}
-        {renderProperties()}
-        {renderPricing()}
         {renderActions()}
       </Stack>
     </Form>

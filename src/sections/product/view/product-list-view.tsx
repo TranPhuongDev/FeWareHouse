@@ -1,267 +1,102 @@
 'use client';
 
-import type { Theme, SxProps } from '@mui/material/styles';
-import type { UseSetStateReturn } from 'minimal-shared/hooks';
-import type { IProductItem, IProductTableFilters } from 'src/types/product';
-import type {
-  GridColDef,
-  GridSlotProps,
-  GridRowSelectionModel,
-  GridActionsCellItemProps,
-  GridColumnVisibilityModel,
-} from '@mui/x-data-grid';
-
-import { useState, useEffect, useCallback } from 'react';
-import { useBoolean, useSetState } from 'minimal-shared/hooks';
-
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Card from '@mui/material/Card';
-import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
+import { Box, Button, Card } from '@mui/material';
 import {
   DataGrid,
-  gridClasses,
-  GridToolbarExport,
   GridActionsCellItem,
-  GridToolbarContainer,
-  GridToolbarQuickFilter,
-  GridToolbarFilterButton,
+  gridClasses,
+  GridColDef,
+  GridRowSelectionModel,
+  GridSlotProps,
   GridToolbarColumnsButton,
+  GridToolbarContainer,
+  GridToolbarExport,
+  GridToolbarQuickFilter,
 } from '@mui/x-data-grid';
-
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
-
-import { PRODUCT_STOCK_OPTIONS } from 'src/_mock';
-import { useGetProducts } from 'src/actions/product';
-import { DashboardContent } from 'src/layouts/dashboard';
-
-import { toast } from 'src/components/snackbar';
-import { Iconify } from 'src/components/iconify';
-import { EmptyContent } from 'src/components/empty-content';
-import { ConfirmDialog } from 'src/components/custom-dialog';
+import axios from 'axios';
+import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { EmptyContent } from 'src/components/empty-content';
+import { Iconify } from 'src/components/iconify';
+import { DashboardContent } from 'src/layouts/dashboard';
+import { RouterLink } from 'src/routes/components';
+import { paths } from 'src/routes/paths';
+import { GridActionsLinkItem } from 'src/sections/category/view';
+import { IProduct } from 'src/types/product';
 
-import { ProductTableToolbar } from '../product-table-toolbar';
-import { ProductTableFiltersResult } from '../product-table-filters-result';
-import {
-  RenderCellStock,
-  RenderCellPrice,
-  RenderCellPublish,
-  RenderCellProduct,
-  RenderCellCreatedAt,
-} from '../product-table-row';
-
-// ----------------------------------------------------------------------
-
-const PUBLISH_OPTIONS = [
-  { value: 'published', label: 'Published' },
-  { value: 'draft', label: 'Draft' },
-];
-
-const HIDE_COLUMNS = { category: false };
-
-const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
-
-export const products: IProductItem[] = [
-  {
-    id: 'product_6',
-    sku: 'SKU006',
-    name: 'Chân Váy Bút Chì',
-    code: 'CVBC06',
-    price: 49.0,
-    taxes: 4.9,
-    tags: ['skirt', 'pencil', 'office'],
-    sizes: ['S', 'M', 'L'],
-    publish: '2024-04-23T08:30:00Z',
-    gender: ['female'],
-    coverUrl: '/images/products/pencil-skirt-cover.jpg',
-    images: ['/images/products/pencil-skirt-1.jpg', '/images/products/pencil-skirt-2.jpg'],
-    colors: ['black', 'navy', 'gray'],
-    quantity: 70,
-    category: 'Bottoms',
-    available: 55,
-    totalSold: 15,
-    description: 'Chân váy bút chì thanh lịch, phù hợp cho môi trường công sở.',
-    totalRatings: 4.7,
-    totalReviews: 60,
-    createdAt: '2024-04-23',
-    inventoryType: 'out_of_stock',
-    subDescription: 'Tôn dáng, dễ phối đồ.',
-    priceSale: null,
-    reviews: [
-      {
-        id: 'review_123',
-        name: 'Alice Wonderland',
-        rating: 5,
-        comment: 'Sản phẩm tuyệt vời! Chất lượng vượt mong đợi, giao hàng nhanh chóng.',
-        helpful: 15,
-        avatarUrl: '/images/avatars/avatar_1.jpg',
-        postedAt: '2024-04-23',
-        isPurchased: true,
-        attachments: ['/images/reviews/review_123_1.jpg', '/images/reviews/review_123_2.jpg'],
-      },
-    ],
-    newLabel: { content: '', enabled: false },
-    saleLabel: { content: '', enabled: false },
-    ratings: [
-      { name: '5 Star', starCount: 45, reviewCount: 45 },
-      { name: '4 Star', starCount: 15, reviewCount: 15 },
-    ],
-  },
-  {
-    id: 'product_7',
-    sku: 'SKU007',
-    name: 'Áo Khoác Bomber',
-    code: 'AKB07',
-    price: 89.99,
-    taxes: 9.0,
-    tags: ['jacket', 'bomber', 'casual'],
-    sizes: ['M', 'L', 'XL'],
-    publish: '2024-04-19T12:00:00Z',
-    gender: ['male'],
-    coverUrl: '/images/products/bomber-jacket-cover.jpg',
-    images: ['/images/products/bomber-jacket-1.jpg', '/images/products/bomber-jacket-2.jpg'],
-    colors: ['black', 'olive'],
-    quantity: 60,
-    category: 'Outerwear',
-    available: 40,
-    totalSold: 20,
-    description: 'Áo khoác bomber стильный, giữ ấm tốt.',
-    totalRatings: 4.4,
-    totalReviews: 30,
-    createdAt: '2024-04-23',
-    inventoryType: 'in_stock',
-    subDescription: 'Phù hợp cho nhiều phong cách.',
-    priceSale: 79.99,
-    reviews: [
-      {
-        id: 'review_123',
-        name: 'Alice Wonderland',
-        rating: 5,
-        comment: 'Sản phẩm tuyệt vời! Chất lượng vượt mong đợi, giao hàng nhanh chóng.',
-        helpful: 15,
-        avatarUrl: '/images/avatars/avatar_1.jpg',
-        postedAt: '2024-04-23',
-        isPurchased: true,
-        attachments: ['/images/reviews/review_123_1.jpg', '/images/reviews/review_123_2.jpg'],
-      },
-    ],
-    newLabel: { content: '', enabled: false },
-    saleLabel: { content: 'Sale 11%', enabled: true },
-    ratings: [
-      { name: '5 Star', starCount: 20, reviewCount: 20 },
-      { name: '4 Star', starCount: 10, reviewCount: 10 },
-    ],
-  },
-];
 // ----------------------------------------------------------------------
 
 export function ProductListView() {
-  const confirmDialog = useBoolean();
-
-  // const { products, productsLoading } = useGetProducts();
-
-  const [tableData, setTableData] = useState<IProductItem[]>(products);
   const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
   const [filterButtonEl, setFilterButtonEl] = useState<HTMLButtonElement | null>(null);
-
-  const filters = useSetState<IProductTableFilters>({ publish: [], stock: [] });
-  const { state: currentFilters } = filters;
-
-  const [columnVisibilityModel, setColumnVisibilityModel] =
-    useState<GridColumnVisibilityModel>(HIDE_COLUMNS);
+  const [tableData, setTableData] = useState<IProduct[]>([]);
 
   useEffect(() => {
-    if (products.length) {
-      setTableData(products);
+    async function fetchProductData() {
+      const url = 'http://localhost:8080/api/products';
+      try {
+        const dataCategory = await axios.get(url);
+        console.log('Product Data:', dataCategory.data.products);
+        setTableData(dataCategory.data.products);
+      } catch (error) {
+        console.error('Error fetching category data:', error);
+      }
     }
-  }, [products]);
+    fetchProductData();
+  }, []);
 
-  const canReset = currentFilters.publish.length > 0 || currentFilters.stock.length > 0;
+  const HIDE_COLUMNS_TOGGLABLE = ['actions'];
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    filters: currentFilters,
-  });
-
-  const handleDeleteRow = useCallback(
-    (id: string) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success('Delete success!');
-
-      setTableData(deleteRow);
-    },
-    [tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !selectedRowIds.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-  }, [selectedRowIds, tableData]);
+  const getTogglableColumns = () =>
+    columns
+      .filter((column) => !HIDE_COLUMNS_TOGGLABLE.includes(column.field))
+      .map((column) => column.field);
 
   const CustomToolbarCallback = useCallback(
-    () => (
-      <CustomToolbar
-        filters={filters}
-        canReset={canReset}
-        selectedRowIds={selectedRowIds}
-        setFilterButtonEl={setFilterButtonEl}
-        filteredResults={dataFiltered.length}
-        onOpenConfirmDeleteRows={confirmDialog.onTrue}
-      />
-    ),
+    () => <CustomToolbar selectedRowIds={selectedRowIds} setFilterButtonEl={setFilterButtonEl} />,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentFilters, selectedRowIds]
+    [selectedRowIds]
   );
 
   const columns: GridColDef[] = [
-    { field: 'category', headerName: 'Category', filterable: false },
     {
-      field: 'name',
-      headerName: 'Product',
-      flex: 1,
-      minWidth: 360,
+      field: 'productID',
+      headerName: 'ID',
+      minWidth: 80,
+      // hideable: false, // trường này không được ẩn đi
+      filterable: false,
+    },
+    {
+      field: 'productName',
+      headerName: 'Product Name',
       hideable: false,
-      renderCell: (params) => (
-        <RenderCellProduct params={params} href={paths.dashboard.product.details(params.row.id)} />
-      ),
+      flex: 1,
+      filterable: false,
     },
     {
-      field: 'createdAt',
-      headerName: 'Create at',
-      width: 160,
-      renderCell: (params) => <RenderCellCreatedAt params={params} />,
+      field: 'description',
+      headerName: 'Description',
+      flex: 1,
+      filterable: false,
     },
     {
-      field: 'inventoryType',
-      headerName: 'Stock',
-      width: 160,
-      type: 'singleSelect',
-      valueOptions: PRODUCT_STOCK_OPTIONS,
-      renderCell: (params) => <RenderCellStock params={params} />,
+      field: 'unit',
+      headerName: 'Unit',
+      minWidth: 80,
+      filterable: false,
     },
     {
-      field: 'price',
-      headerName: 'Price',
-      width: 140,
-      editable: true,
-      renderCell: (params) => <RenderCellPrice params={params} />,
+      field: 'importPrice',
+      headerName: 'Import Price',
+      flex: 1,
+      filterable: false,
     },
     {
-      field: 'publish',
-      headerName: 'Publish',
-      width: 110,
-      type: 'singleSelect',
-      editable: true,
-      valueOptions: PUBLISH_OPTIONS,
-      renderCell: (params) => <RenderCellPublish params={params} />,
+      field: 'salePrice',
+      headerName: 'Sale Price',
+      flex: 1,
+      filterable: false,
     },
     {
       type: 'actions',
@@ -269,64 +104,49 @@ export function ProductListView() {
       headerName: ' ',
       align: 'right',
       headerAlign: 'right',
-      width: 80,
+      width: 100,
       sortable: false,
       filterable: false,
       disableColumnMenu: true,
       getActions: (params) => [
         <GridActionsLinkItem
           showInMenu
-          icon={<Iconify icon="solar:eye-bold" />}
-          label="View"
-          href={paths.dashboard.product.details(params.row.id)}
-        />,
-        <GridActionsLinkItem
-          showInMenu
           icon={<Iconify icon="solar:pen-bold" />}
           label="Edit"
-          href={paths.dashboard.product.edit(params.row.id)}
+          href={paths.dashboard.product.edit(params.row.productID)}
         />,
         <GridActionsCellItem
           showInMenu
           icon={<Iconify icon="solar:trash-bin-trash-bold" />}
           label="Delete"
-          onClick={() => handleDeleteRow(params.row.id)}
+          onClick={() => {
+            handleDeleteRow(params.row.productID);
+          }}
           sx={{ color: 'error.main' }}
         />,
       ],
     },
   ];
+  const handleDeleteRow = useCallback(
+    async (id: string) => {
+      const apiUrl = `http://localhost:8080/api/products/${id}`;
 
-  const getTogglableColumns = () =>
-    columns
-      .filter((column) => !HIDE_COLUMNS_TOGGLABLE.includes(column.field))
-      .map((column) => column.field);
+      try {
+        const response = await axios.delete(apiUrl);
 
-  const renderConfirmDialog = () => (
-    <ConfirmDialog
-      open={confirmDialog.value}
-      onClose={confirmDialog.onFalse}
-      title="Delete"
-      content={
-        <>
-          Are you sure want to delete <strong> {selectedRowIds.length} </strong> items?
-        </>
+        if (response.status === 204) {
+          const updatedTableData = tableData.filter((row) => row.productID !== id);
+          setTableData(updatedTableData);
+          toast.success('Delete success!');
+        } else {
+          toast.error(`Delete failed with status: ${response.status}`);
+        }
+      } catch (error) {
+        toast.error('Delete failed!');
       }
-      action={
-        <Button
-          variant="contained"
-          color="error"
-          onClick={() => {
-            handleDeleteRows();
-            confirmDialog.onFalse();
-          }}
-        >
-          Delete
-        </Button>
-      }
-    />
+    },
+    [tableData]
   );
-
   return (
     <>
       <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -349,7 +169,6 @@ export function ProductListView() {
           }
           sx={{ mb: { xs: 3, md: 5 } }}
         />
-
         <Card
           sx={{
             minHeight: 640,
@@ -360,17 +179,15 @@ export function ProductListView() {
           }}
         >
           <DataGrid
+            getRowId={(row) => row.productID}
             checkboxSelection
             disableRowSelectionOnClick
-            rows={dataFiltered}
-            columns={columns}
-            // loading={productsLoading}
             getRowHeight={() => 'auto'}
+            rows={tableData}
+            columns={columns}
             pageSizeOptions={[5, 10, 20, { value: -1, label: 'All' }]}
-            initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+            initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
             onRowSelectionModelChange={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
-            columnVisibilityModel={columnVisibilityModel}
-            onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
             slots={{
               toolbar: CustomToolbarCallback,
               noRowsOverlay: () => <EmptyContent />,
@@ -385,46 +202,28 @@ export function ProductListView() {
           />
         </Card>
       </DashboardContent>
-
-      {renderConfirmDialog()}
     </>
   );
 }
 
 // ----------------------------------------------------------------------
-
-declare module '@mui/x-data-grid' {
-  interface ToolbarPropsOverrides {
-    setFilterButtonEl: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
-  }
-}
+// ----------------------------------------------------------------------
 
 type CustomToolbarProps = GridSlotProps['toolbar'] & {
-  canReset: boolean;
-  filteredResults: number;
   selectedRowIds: GridRowSelectionModel;
-  filters: UseSetStateReturn<IProductTableFilters>;
-
-  onOpenConfirmDeleteRows: () => void;
+  // onOpenConfirmDeleteRows: () => void;
 };
 
-function CustomToolbar({
-  filters,
-  canReset,
-  selectedRowIds,
-  filteredResults,
-  setFilterButtonEl,
-  onOpenConfirmDeleteRows,
-}: CustomToolbarProps) {
+function CustomToolbar({ selectedRowIds, setFilterButtonEl }: CustomToolbarProps) {
   return (
     <>
       <GridToolbarContainer>
-        <ProductTableToolbar
-          filters={filters}
-          options={{ stocks: PRODUCT_STOCK_OPTIONS, publishs: PUBLISH_OPTIONS }}
+        <GridToolbarQuickFilter
+          sx={{
+            gap: 1,
+            flexGrow: 1,
+          }}
         />
-
-        <GridToolbarQuickFilter />
 
         <Box
           sx={{
@@ -440,71 +239,16 @@ function CustomToolbar({
               size="small"
               color="error"
               startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-              onClick={onOpenConfirmDeleteRows}
+              // onClick={onOpenConfirmDeleteRows}
             >
               Delete ({selectedRowIds.length})
             </Button>
           )}
 
-          <GridToolbarColumnsButton />
-          <GridToolbarFilterButton ref={setFilterButtonEl} />
+          <GridToolbarColumnsButton ref={setFilterButtonEl} />
           <GridToolbarExport />
         </Box>
       </GridToolbarContainer>
-
-      {canReset && (
-        <ProductTableFiltersResult
-          filters={filters}
-          totalResults={filteredResults}
-          sx={{ p: 2.5, pt: 0 }}
-        />
-      )}
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-type GridActionsLinkItemProps = Pick<GridActionsCellItemProps, 'icon' | 'label' | 'showInMenu'> & {
-  href: string;
-  sx?: SxProps<Theme>;
-  ref?: React.RefObject<HTMLLIElement | null>;
-};
-
-export function GridActionsLinkItem({ ref, href, label, icon, sx }: GridActionsLinkItemProps) {
-  return (
-    <MenuItem ref={ref} sx={sx}>
-      <Link
-        component={RouterLink}
-        href={href}
-        underline="none"
-        color="inherit"
-        sx={{ width: 1, display: 'flex', alignItems: 'center' }}
-      >
-        {icon && <ListItemIcon>{icon}</ListItemIcon>}
-        {label}
-      </Link>
-    </MenuItem>
-  );
-}
-
-// ----------------------------------------------------------------------
-
-type ApplyFilterProps = {
-  inputData: IProductItem[];
-  filters: IProductTableFilters;
-};
-
-function applyFilter({ inputData, filters }: ApplyFilterProps) {
-  const { stock, publish } = filters;
-
-  if (stock.length) {
-    inputData = inputData.filter((product) => stock.includes(product.inventoryType));
-  }
-
-  if (publish.length) {
-    inputData = inputData.filter((product) => publish.includes(product.publish));
-  }
-
-  return inputData;
 }

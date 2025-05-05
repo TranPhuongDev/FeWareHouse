@@ -1,4 +1,14 @@
-import type { IDateValue } from './common';
+// ----------------------------------------------------------------------
+export type IProduct = {
+  productID: string;
+  productName: string;
+  description: string;
+  unit: string;
+  importPrice: number;
+  salePrice: number;
+  categoryID: string;
+  supplierID: string;
+};
 
 // ----------------------------------------------------------------------
 
@@ -22,7 +32,7 @@ export type IProductReview = {
   comment: string;
   helpful: number;
   avatarUrl: string;
-  postedAt: IDateValue;
+  // postedAt: IDateValue;
   isPurchased: boolean;
   attachments?: string[];
 };
@@ -48,7 +58,7 @@ export type IProductItem = {
   description: string;
   totalRatings: number;
   totalReviews: number;
-  createdAt: IDateValue;
+  // createdAt: IDateValue;
   inventoryType: string;
   subDescription: string;
   priceSale: number | null;

@@ -250,6 +250,13 @@ export function CategoryListView() {
 }
 
 // ----------------------------------------------------------------------
+declare module '@mui/x-data-grid' {
+  interface ToolbarPropsOverrides {
+    setFilterButtonEl: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
+  }
+}
+
+// ----------------------------------------------------------------------
 
 type GridActionsLinkItemProps = Pick<GridActionsCellItemProps, 'icon' | 'label' | 'showInMenu'> & {
   href: string;
