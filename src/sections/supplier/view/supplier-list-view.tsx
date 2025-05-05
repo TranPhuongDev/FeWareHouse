@@ -36,7 +36,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { ISupplierItem, ISupplierTableFilters } from 'src/types/supplier';
 import { SupplierTableFiltersResult } from '../supplier-table-filters-result';
 import axios from 'axios';
-import { GridActionsLinkItem } from 'src/sections/product/view';
+import { GridActionsLinkItem } from 'src/sections/category/view';
 import { toast } from 'sonner';
 
 // ----------------------------------------------------------------------

@@ -1,6 +1,6 @@
 'use client';
 
-import type { IProductItem } from 'src/types/product';
+import type { IProduct } from 'src/types/product';
 
 import { paths } from 'src/routes/paths';
 
@@ -13,7 +13,7 @@ import { ProductNewEditForm } from '../product-new-edit-form';
 // ----------------------------------------------------------------------
 
 type Props = {
-  product?: IProductItem;
+  product?: IProduct;
 };
 
 export function ProductEditView({ product }: Props) {
@@ -25,7 +25,7 @@ export function ProductEditView({ product }: Props) {
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Product', href: paths.dashboard.product.root },
-          { name: product?.name },
+          { name: product?.productName },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
