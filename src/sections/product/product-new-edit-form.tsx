@@ -120,7 +120,7 @@ export function ProductNewEditForm({ currentProduct }: Props) {
   const onSubmit = handleSubmit(async (data) => {
     console.log('Data Update', data);
     const apiUrl = currentProduct
-      ? `http://localhost:8080/api/products/${currentProduct.supplierID}` // API cho cập nhật (patch)
+      ? `http://localhost:8080/api/products/${currentProduct.productID}` // API cho cập nhật (patch)
       : 'http://localhost:8080/api/products'; // API cho tạo mới (POST)
 
     const method = currentProduct ? 'patch' : 'post';

@@ -44,6 +44,10 @@ const ICONS = {
   category: icon('ic-cate'),
   customer: icon('ic-customer'),
   supplier: icon('ic-supplier'),
+  importware: icon('ic-import'),
+  importdetail: icon('ic-importdetail'),
+  exportWare: icon('ic-export'),
+  exportdetail: icon('ic-exportdetail'),
 };
 
 // ----------------------------------------------------------------------
@@ -92,6 +96,42 @@ export const navData: NavSectionProps['data'] = [
         children: [
           { title: 'List', path: paths.dashboard.product.root },
           { title: 'Create', path: paths.dashboard.product.new },
+        ],
+      },
+      {
+        title: 'Import',
+        path: paths.dashboard.importware.root,
+        icon: ICONS.importware,
+        children: [
+          { title: 'List', path: paths.dashboard.importware.root },
+          { title: 'Create', path: paths.dashboard.importware.new },
+        ],
+      },
+      {
+        title: 'Import Detail',
+        path: paths.dashboard.importdetail.root,
+        icon: ICONS.importdetail,
+        children: [
+          { title: 'List', path: paths.dashboard.importdetail.root },
+          { title: 'Create', path: paths.dashboard.importdetail.new },
+        ],
+      },
+      {
+        title: 'Export',
+        path: paths.dashboard.exportware.root,
+        icon: ICONS.exportWare,
+        children: [
+          { title: 'List', path: paths.dashboard.exportware.root },
+          { title: 'Create', path: paths.dashboard.exportware.new },
+        ],
+      },
+      {
+        title: 'Export Detail',
+        path: paths.dashboard.exportdetail.root,
+        icon: ICONS.exportdetail,
+        children: [
+          { title: 'List', path: paths.dashboard.exportdetail.root },
+          { title: 'Create', path: paths.dashboard.exportdetail.new },
         ],
       },
       {
