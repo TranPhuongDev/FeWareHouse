@@ -140,6 +140,26 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/product/${MOCK_ID}/edit`,
       },
     },
+    importware: {
+      root: `${ROOTS.DASHBOARD}/importware`,
+      new: `${ROOTS.DASHBOARD}/importware/new`,
+      edit: (id: number) => `${ROOTS.DASHBOARD}/importware/${id}/edit`,
+    },
+    importdetail: {
+      root: `${ROOTS.DASHBOARD}/importdetail`,
+      new: `${ROOTS.DASHBOARD}/importdetail/new`,
+      edit: (id: number) => `${ROOTS.DASHBOARD}/importdetail/${id}/edit`,
+    },
+    exportware: {
+      root: `${ROOTS.DASHBOARD}/exportware`,
+      new: `${ROOTS.DASHBOARD}/exportware/new`,
+      edit: (id: number) => `${ROOTS.DASHBOARD}/exportware/${id}/edit`,
+    },
+    exportdetail: {
+      root: `${ROOTS.DASHBOARD}/exportdetail`,
+      new: `${ROOTS.DASHBOARD}/exportdetail/new`,
+      edit: (id: number) => `${ROOTS.DASHBOARD}/exportdetail/${id}/edit`,
+    },
     supplier: {
       root: `${ROOTS.DASHBOARD}/supplier`,
       new: `${ROOTS.DASHBOARD}/supplier/new`,
