@@ -6,9 +6,20 @@ export type IProduct = {
   unit: string;
   importPrice: number;
   salePrice: number;
-  categoryID: string;
-  supplierID: string;
+  categoryID: {
+    categoryID: string;
+    categoryName: string;
+  };
+  supplierID: {
+    supplierID: number;
+    supplierName: string;
+    address: string;
+    phone: string;
+    email: string;
+    website: string;
+  };
 };
+
 
 // ----------------------------------------------------------------------
 

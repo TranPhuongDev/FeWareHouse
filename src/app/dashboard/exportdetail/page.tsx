@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
 import { ExportDetailListView } from 'src/sections/exportdetail/view';
-import { ImportDetailListView } from 'src/sections/importdetail/view';
 
 // ----------------------------------------------------------------------
 

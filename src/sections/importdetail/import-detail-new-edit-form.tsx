@@ -1,7 +1,6 @@
 import { z as zod } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useForm } from 'react-hook-form';
-import { isValidPhoneNumber } from 'react-phone-number-input/input';
+import { useForm } from 'react-hook-form';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -13,35 +12,34 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
 import { toast } from 'src/components/snackbar';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { Form, Field } from 'src/components/hook-form';
 import axios from 'axios';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ImportDetail } from 'src/types/importdetail';
+import { IProduct } from 'src/types/product';
+import { ImportItem } from 'src/types/importware';
 import { InputAdornment } from '@mui/material';
-import { ImportItemAdd } from 'src/types/importware';
-import dayjs from 'dayjs';
-import { ImportDetailAdd } from 'src/types/importdetail';
-import { IProduct, IProductItem } from 'src/types/product';
 
 // ----------------------------------------------------------------------
 
-export type NewImportSchemaType = zod.infer<typeof NewImportSchema>;
+export type NewImportDetailSchemaType = zod.infer<typeof NewImportSchema>;
 
 export const NewImportSchema = zod.object({
   quantity: zod.number({ coerce: true }).nullable(),
   importPrice: zod.number({ coerce: true }).nullable(),
-  productID: zod.number({ coerce: true }).nullable(),
-  importID: zod.number({ coerce: true }).nullable(),
+  productID: zod.string().nullable(),
+  importID: zod.string().nullable(),
 });
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  currentImportDetail?: ImportDetailAdd;
+  currentImportDetail?: ImportDetail;
 };
 
 export function ImportDetailNewEditForm({ currentImportDetail }: Props) {
   const [dataPro, setDataPro] = useState<IProduct[]>([]);
-  const [dataImport, setDataImport] = useState<ImportItemAdd[]>([]);
+  const [dataImport, setDataImport] = useState<ImportItem[]>([]);
   const router = useRouter();
 
   // ----------------------------------------------------------------------
@@ -71,18 +69,27 @@ export function ImportDetailNewEditForm({ currentImportDetail }: Props) {
     fetchProductData();
   }, []);
 
-  const defaultValues: NewImportSchemaType = {
-    quantity: null,
-    importPrice: null,
-    productID: null,
-    importID: null,
+  const defaultValues: NewImportDetailSchemaType = {
+    quantity: currentImportDetail?.quantity || null,
+    importPrice: currentImportDetail?.importPrice || null,
+    productID: currentImportDetail?.productID?.productID.toString() || '',
+    importID: currentImportDetail?.importID?.importID.toString() || '',
   };
 
-  const methods = useForm<NewImportSchemaType>({
+  const transformedValues: NewImportDetailSchemaType | undefined = currentImportDetail
+    ? {
+        quantity: currentImportDetail.quantity,
+        importPrice: currentImportDetail.importPrice,
+        productID: currentImportDetail.productID?.productID.toString() || '',
+        importID: currentImportDetail.importID?.importID.toString() || '',
+      }
+    : undefined;
+
+  const methods = useForm<NewImportDetailSchemaType>({
     mode: 'onSubmit',
     resolver: zodResolver(NewImportSchema),
     defaultValues,
-    values: currentImportDetail,
+    values: transformedValues,
   });
 
   const {
@@ -93,6 +100,15 @@ export function ImportDetailNewEditForm({ currentImportDetail }: Props) {
 
   const onSubmit = handleSubmit(async (data) => {
     console.log('Data Update', data);
+    const fixedData = currentImportDetail
+      ? {
+          ...data,
+        }
+      : {
+          ...data,
+          productID: data.productID || dataPro[0]?.productID || '',
+          importID: data.importID || dataImport[0]?.importID || '',
+        };
 
     const apiUrl = currentImportDetail
       ? `http://localhost:8080/api/importdetailwarehosue/${currentImportDetail.importDetailID}` // API cho cập nhật (patch)
@@ -103,7 +119,7 @@ export function ImportDetailNewEditForm({ currentImportDetail }: Props) {
       const response = await axios({
         method,
         url: apiUrl,
-        data: data,
+        data: fixedData,
       });
 
       console.log('Response from API:', response.data);

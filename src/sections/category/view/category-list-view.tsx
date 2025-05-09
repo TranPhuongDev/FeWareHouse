@@ -10,7 +10,6 @@ import {
   GridColDef,
   GridRowSelectionModel,
   GridSlotProps,
-  GridToolbar,
   GridToolbarColumnsButton,
   GridToolbarContainer,
   GridToolbarExport,
@@ -30,17 +29,6 @@ import { toast } from 'sonner';
 import { ICategoryItem } from 'src/types/category';
 import axios from 'axios';
 
-// const rows = [
-//   { id: 1, categoryName: 'Snow' },
-//   { id: 2, categoryName: 'Lannister' },
-//   { id: 3, categoryName: 'Lannister' },
-//   { id: 4, categoryName: 'Stark' },
-//   { id: 5, categoryName: 'Targaryen' },
-//   { id: 6, categoryName: 'Melisandre' },
-//   { id: 7, categoryName: 'Clifford' },
-//   { id: 8, categoryName: 'Frances' },
-//   { id: 9, categoryName: 'Roxie' },
-// ];
 
 export function CategoryListView() {
   const [filterButtonEl, setFilterButtonEl] = useState<HTMLButtonElement | null>(null);

@@ -16,11 +16,3 @@ export type ImportDetail = {
     salePrice: number;
   };
 };
-
-export type ImportDetailAdd = {
-  importDetailID: number;
-  quantity: number;
-  importPrice: number;
-  importID: number;
-  productID: number;
-};

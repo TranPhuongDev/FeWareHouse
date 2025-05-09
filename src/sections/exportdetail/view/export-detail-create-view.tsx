@@ -16,8 +16,8 @@ export function ExportDetailCreateView() {
         heading="Create a new export detail"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Export Detail', href: 'paths.dashboard.importware.root' },
-          { name: 'New import detail' },
+          { name: 'Export Detail', href: paths.dashboard.exportdetail.root },
+          { name: 'New export detail' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

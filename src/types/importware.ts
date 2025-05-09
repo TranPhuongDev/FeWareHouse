@@ -9,12 +9,5 @@ export type ImportItem = {
     website: string;
   };
   totalAmount: number;
-  importDate: string;
-};
-
-export type ImportItemAdd = {
-  importID: number;
-  supplierID: string;
-  totalAmount: number;
   importDate: Date;
 };

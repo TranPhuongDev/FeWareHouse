@@ -1,7 +1,6 @@
 import { z as zod } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useForm } from 'react-hook-form';
-import { isValidPhoneNumber } from 'react-phone-number-input/input';
+import { useForm } from 'react-hook-form';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -13,16 +12,13 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
 import { toast } from 'src/components/snackbar';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { Form, Field } from 'src/components/hook-form';
 import axios from 'axios';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { InputAdornment } from '@mui/material';
-import { ImportItemAdd } from 'src/types/importware';
-import dayjs from 'dayjs';
-import { ImportDetailAdd } from 'src/types/importdetail';
-import { IProduct, IProductItem } from 'src/types/product';
-import { ExportDetailAdd } from 'src/types/exportdetail';
-import { ExportItemAdd } from 'src/types/exportware';
+import { IProduct } from 'src/types/product';
+import { ExportDetail } from 'src/types/exportdetail';
+import { ExportItem } from 'src/types/exportware';
 
 // ----------------------------------------------------------------------
 
@@ -31,19 +27,19 @@ export type NewExportSchemaType = zod.infer<typeof NewExportSchema>;
 export const NewExportSchema = zod.object({
   quantity: zod.number({ coerce: true }).nullable(),
   salePrice: zod.number({ coerce: true }).nullable(),
-  productID: zod.number({ coerce: true }).nullable(),
-  exportID: zod.number({ coerce: true }).nullable(),
+  productID: zod.string().nullable(),
+  exportID: zod.string().nullable(),
 });
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  currentExportDetail?: ExportDetailAdd;
+  currentExportDetail?: ExportDetail;
 };
 
 export function ExportDetailNewEditForm({ currentExportDetail }: Props) {
   const [dataPro, setDataPro] = useState<IProduct[]>([]);
-  const [dataExport, setDataExport] = useState<ExportItemAdd[]>([]);
+  const [dataExport, setDataExport] = useState<ExportItem[]>([]);
   const router = useRouter();
 
   // ----------------------------------------------------------------------
@@ -74,17 +70,26 @@ export function ExportDetailNewEditForm({ currentExportDetail }: Props) {
   }, []);
 
   const defaultValues: NewExportSchemaType = {
-    quantity: null,
-    salePrice: null,
-    productID: null,
-    exportID: null,
+    quantity: currentExportDetail?.quantity || null,
+    salePrice: currentExportDetail?.salePrice || null,
+    productID: currentExportDetail?.productID?.productID.toString() || '',
+    exportID: currentExportDetail?.exportID?.exportID.toString() || '',
   };
+
+  const transformedValues: NewExportSchemaType | undefined = currentExportDetail
+    ? {
+        quantity: currentExportDetail.quantity,
+        salePrice: currentExportDetail.salePrice,
+        productID: currentExportDetail.productID?.productID.toString() || '',
+        exportID: currentExportDetail.exportID?.exportID.toString() || '',
+      }
+    : undefined;
 
   const methods = useForm<NewExportSchemaType>({
     mode: 'onSubmit',
     resolver: zodResolver(NewExportSchema),
     defaultValues,
-    values: currentExportDetail,
+    values: transformedValues,
   });
 
   const {
@@ -95,6 +100,15 @@ export function ExportDetailNewEditForm({ currentExportDetail }: Props) {
 
   const onSubmit = handleSubmit(async (data) => {
     console.log('Data Update', data);
+    const fixedData = currentExportDetail
+      ? {
+          ...data,
+        }
+      : {
+          ...data,
+          productID: data.productID || dataPro[0]?.productID || '',
+          exportID: data.exportID || dataExport[0]?.exportID || '',
+        };
 
     const apiUrl = currentExportDetail
       ? `http://localhost:8080/api/exportdetailwarehouse/${currentExportDetail.exportDetailID}` // API cho cập nhật (patch)
@@ -105,7 +119,7 @@ export function ExportDetailNewEditForm({ currentExportDetail }: Props) {
       const response = await axios({
         method,
         url: apiUrl,
-        data: data,
+        data: fixedData,
       });
 
       console.log('Response from API:', response.data);

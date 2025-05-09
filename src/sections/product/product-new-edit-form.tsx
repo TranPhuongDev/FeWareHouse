@@ -2,7 +2,7 @@ import type { IProduct, IProductItem } from 'src/types/product';
 
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -16,9 +16,7 @@ import Divider from '@mui/material/Divider';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
-import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
-import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -30,11 +28,6 @@ import axios from 'axios';
 import { ICategoryItem } from 'src/types/category';
 import { ISupplierItem } from 'src/types/supplier';
 
-// export const CATEGORY_GROUP_OPTIONS = [
-//   { group: 'Clothing', classify: ['Shirts', 'T-shirts', 'Jeans', 'Leather', 'Accessories'] },
-//   { group: 'Tailored', classify: ['Suits', 'Blazers', 'Trousers', 'Waistcoats', 'Apparel'] },
-//   { group: 'Accessories', classify: ['Shoes', 'Backpacks and bags', 'Bracelets', 'Face masks'] },
-// ];
 // ----------------------------------------------------------------------
 
 // ----------------------------------------------------------------------
@@ -51,8 +44,8 @@ export const NewProductSchema = zod.object({
   unit: zod.string().min(1, { message: 'Name is required!' }),
   importPrice: zod.number({ coerce: true }).nullable(),
   salePrice: zod.number({ coerce: true }).nullable(),
-  categoryID: zod.string(),
-  supplierID: zod.string(),
+  categoryID: zod.string().optional(),
+  supplierID: zod.string().optional(),
 });
 
 // ----------------------------------------------------------------------
@@ -96,19 +89,31 @@ export function ProductNewEditForm({ currentProduct }: Props) {
 
   // ----------------------------------------------------------------------
   const defaultValues: NewProductSchemaType = {
-    productName: '',
-    description: '',
-    unit: '',
-    importPrice: null,
-    salePrice: null,
-    categoryID: '',
-    supplierID: '',
+    productName: currentProduct?.productName || '',
+    description: currentProduct?.description || '',
+    unit: currentProduct?.unit || '',
+    importPrice: currentProduct?.importPrice ?? null,
+    salePrice: currentProduct?.salePrice ?? null,
+    categoryID: currentProduct?.categoryID?.categoryID?.toString() || '',
+    supplierID: currentProduct?.supplierID?.supplierID?.toString() || '',
   };
+
+  const transformedValues: NewProductSchemaType | undefined = currentProduct
+    ? {
+        productName: currentProduct.productName,
+        description: currentProduct.description,
+        unit: currentProduct.unit,
+        importPrice: currentProduct.importPrice,
+        salePrice: currentProduct.salePrice,
+        categoryID: currentProduct.categoryID?.categoryID.toString() || '',
+        supplierID: currentProduct.supplierID?.supplierID.toString() || '',
+      }
+    : undefined;
 
   const methods = useForm<NewProductSchemaType>({
     resolver: zodResolver(NewProductSchema),
     defaultValues,
-    values: currentProduct,
+    values: transformedValues || defaultValues,
   });
 
   const {
@@ -119,6 +124,19 @@ export function ProductNewEditForm({ currentProduct }: Props) {
 
   const onSubmit = handleSubmit(async (data) => {
     console.log('Data Update', data);
+
+    // Nếu đang tạo mới sản phẩm
+    const fixedData = currentProduct
+      ? {
+          ...data,
+        }
+      : {
+          ...data,
+          categoryID: data.categoryID || dateCate[0]?.categoryID || '',
+          supplierID: data.supplierID || dataSup[0]?.supplierID || '',
+        };
+
+    // console.log('Response from fixedData:', fixedData);
     const apiUrl = currentProduct
       ? `http://localhost:8080/api/products/${currentProduct.productID}` // API cho cập nhật (patch)
       : 'http://localhost:8080/api/products'; // API cho tạo mới (POST)
@@ -128,10 +146,9 @@ export function ProductNewEditForm({ currentProduct }: Props) {
       const response = await axios({
         method,
         url: apiUrl,
-        data: data,
+        data: fixedData,
       });
 
-      console.log('Response from API:', response.data);
       reset();
       toast.success(currentProduct ? 'Update success!' : 'Create success!');
       router.push(paths.dashboard.product.root);

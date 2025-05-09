@@ -24,6 +24,11 @@ import { RouterLink } from 'src/routes/components';
 import { paths } from 'src/routes/paths';
 import { GridActionsLinkItem } from 'src/sections/category/view';
 import { ExportDetail } from 'src/types/exportdetail';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export function ExportDetailListView() {
   const [tableData, setTableData] = useState<ExportDetail[]>([]);
@@ -36,29 +41,8 @@ export function ExportDetailListView() {
       try {
         const response = await axios.get(url);
 
-        const rawImports = response.data.exportdetails;
-
-        // Flatten nested supplierID object
-        const formattedData = rawImports.map((item: any) => ({
-          exportDetailID: item.exportDetailID,
-          quantity: item.quantity,
-          salePrice: item.salePrice,
-          // import
-          exportID: item.exportID?.exportID ?? null,
-          totalAmount: item.exportID?.totalAmount ?? null,
-          exportDate: item.exportID?.exportDate ?? null,
-
-          // product
-          productID: item.productID?.productID ?? null,
-          productName: item.productID?.productName ?? null,
-          description: item.productID?.description ?? null,
-          unit: item.productID?.unit ?? null,
-          importPriceProduct: item.productID?.importPrice ?? null,
-          salePriceProduct: item.productID?.salePrice ?? null,
-        }));
-
-        console.log('formattedData', formattedData);
-        setTableData(formattedData);
+        console.log('formattedData', response);
+        setTableData(response.data.exportdetails);
       } catch (error) {
         console.error('Error fetching import data:', error);
       }
@@ -128,11 +112,19 @@ export function ExportDetailListView() {
       field: 'exportDate',
       headerName: 'Export Date',
       flex: 1,
+      renderCell: (data) => {
+        return data.row.exportID.exportDate
+          ? dayjs(data.row.exportID.exportDate).tz('Asia/Ho_Chi_Minh').format('MM/DD/YYYY HH:mm:ss')
+          : '';
+      },
     },
     {
       field: 'productName',
       headerName: 'Product Name',
       flex: 1,
+      renderCell: (data) => {
+        return data.row.productID.productName;
+      },
     },
     {
       type: 'actions',

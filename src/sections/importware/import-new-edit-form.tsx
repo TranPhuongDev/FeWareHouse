@@ -1,7 +1,6 @@
 import { z as zod } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
-import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -13,14 +12,14 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
 import { toast } from 'src/components/snackbar';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { Form, Field } from 'src/components/hook-form';
 import axios from 'axios';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { ISupplierItem } from 'src/types/supplier';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { InputAdornment } from '@mui/material';
-import { ImportItemAdd } from 'src/types/importware';
 import dayjs from 'dayjs';
+import { ImportItem } from 'src/types/importware';
 
 // ----------------------------------------------------------------------
 
@@ -29,13 +28,13 @@ export type NewImportSchemaType = zod.infer<typeof NewImportSchema>;
 export const NewImportSchema = zod.object({
   totalAmount: zod.number({ coerce: true }).nullable(),
   importDate: zod.date({ coerce: true }).nullable(),
-  supplierID: zod.string(),
+  supplierID: zod.string().optional(),
 });
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  currentImport?: ImportItemAdd;
+  currentImport?: ImportItem;
 };
 
 export function ImportNewEditForm({ currentImport }: Props) {
@@ -59,16 +58,24 @@ export function ImportNewEditForm({ currentImport }: Props) {
   }, []);
 
   const defaultValues: NewImportSchemaType = {
-    totalAmount: null,
-    importDate: null,
-    supplierID: '',
+    totalAmount: currentImport?.totalAmount || null,
+    importDate: currentImport?.importDate ? new Date(currentImport.importDate) : null,
+    supplierID: currentImport?.supplierID?.supplierID?.toString() || '',
   };
+
+  const transformedValues: NewImportSchemaType | undefined = currentImport
+    ? {
+        totalAmount: currentImport.totalAmount,
+        importDate: currentImport.importDate,
+        supplierID: currentImport.supplierID?.supplierID.toString() || '',
+      }
+    : undefined;
 
   const methods = useForm<NewImportSchemaType>({
     mode: 'onSubmit',
     resolver: zodResolver(NewImportSchema),
     defaultValues,
-    values: currentImport,
+    values: transformedValues,
   });
 
   const {
@@ -79,6 +86,14 @@ export function ImportNewEditForm({ currentImport }: Props) {
 
   const onSubmit = handleSubmit(async (data) => {
     console.log('Data Update', data);
+    const fixedData = currentImport
+      ? {
+          ...data,
+        }
+      : {
+          ...data,
+          supplierID: data.supplierID || dataSup[0]?.supplierID || '',
+        };
 
     const apiUrl = currentImport
       ? `http://localhost:8080/api/importwarehouse/${currentImport.importID}` // API cho cập nhật (patch)
@@ -89,7 +104,7 @@ export function ImportNewEditForm({ currentImport }: Props) {
       const response = await axios({
         method,
         url: apiUrl,
-        data: data,
+        data: fixedData,
       });
 
       console.log('Response from API:', response.data);
@@ -110,7 +125,7 @@ export function ImportNewEditForm({ currentImport }: Props) {
             <Box sx={{ p: 3 }}>
               <Field.Text
                 name="totalAmount"
-                label="Total price"
+                label="Total Amount"
                 placeholder="0.00"
                 type="number"
                 slotProps={{

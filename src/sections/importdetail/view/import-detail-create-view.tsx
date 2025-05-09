@@ -16,7 +16,7 @@ export function ImportDetailCreateView() {
         heading="Create a new import detail"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Import Detail', href: 'paths.dashboard.importware.root' },
+          { name: 'Import Detail', href: paths.dashboard.importdetail.root },
           { name: 'New import detail' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}

@@ -4,14 +4,13 @@ import { paths } from 'src/routes/paths';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { ICategoryItem } from 'src/types/category';
-import { ImportItemAdd } from 'src/types/importware';
-import { ExportItemAdd } from 'src/types/exportware';
+
 import { ExportNewEditForm } from '../export-new-edit-form';
+import { ExportItem } from 'src/types/exportware';
 // ----------------------------------------------------------------------
 
 type Props = {
-  currentExport?: ExportItemAdd;
+  currentExport?: ExportItem;
 };
 export function ExportEditView({ currentExport: currentExport }: Props) {
   return (
@@ -20,8 +19,8 @@ export function ExportEditView({ currentExport: currentExport }: Props) {
         heading="Edit a export"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Export', href: paths.dashboard.importware.root },
-          { name: '' },
+          { name: 'Export', href: paths.dashboard.exportware.root },
+          { name: currentExport?.exportID.toString() },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

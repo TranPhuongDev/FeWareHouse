@@ -58,22 +58,9 @@ export function ImportListView() {
       const url = 'http://localhost:8080/api/importwarehouse';
       try {
         const response = await axios.get(url);
-        const rawImports = response.data.imports;
 
-        // Flatten nested supplierID object
-        const formattedData = rawImports.map((item: any) => ({
-          importID: item.importID,
-          totalAmount: item.totalAmount,
-          importDate: item.importDate ? dayjs(item.importDate).format('MM/DD/YYYY HH:mm:ss') : '',
-          supplierID: item.supplierID?.supplierID ?? null,
-          supplierName: item.supplierID?.supplierName ?? '',
-          supplierEmail: item.supplierID?.email ?? '',
-          supplierPhone: item.supplierID?.phone ?? '',
-          supplierAddress: item.supplierID?.address ?? '',
-          supplierWebsite: item.supplierID?.website ?? '',
-        }));
-
-        setTableData(formattedData);
+        // console.log('response.data.imports', response.data.imports);
+        setTableData(response.data.imports);
       } catch (error) {
         console.error('Error fetching import data:', error);
       }
@@ -129,10 +116,13 @@ export function ImportListView() {
     },
     {
       field: 'supplierName',
-      headerName: 'supplierName',
+      headerName: 'supplier Name',
       flex: 1,
       hideable: false, // trường này không được ẩn đi
       filterable: false,
+      renderCell: (data) => {
+        return data.row.supplierID.supplierName;
+      },
     },
     {
       field: 'importDate',

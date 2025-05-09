@@ -1,7 +1,6 @@
 import { z as zod } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
-import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -16,28 +15,26 @@ import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import axios from 'axios';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { ISupplierItem } from 'src/types/supplier';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { InputAdornment } from '@mui/material';
-import { ImportItemAdd } from 'src/types/importware';
 import dayjs from 'dayjs';
-import { ExportItemAdd } from 'src/types/exportware';
+import { ExportItem } from 'src/types/exportware';
 import { ICustomerItem } from 'src/types/customer';
 
 // ----------------------------------------------------------------------
 
-export type NewImportSchemaType = zod.infer<typeof NewImportSchema>;
+export type NewExportSchemaType = zod.infer<typeof NewExportSchema>;
 
-export const NewImportSchema = zod.object({
+export const NewExportSchema = zod.object({
   totalAmount: zod.number({ coerce: true }).nullable(),
   exportDate: zod.date({ coerce: true }).nullable(),
-  customerID: zod.string(),
+  customerID: zod.string().optional(),
 });
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  currentExport?: ExportItemAdd;
+  currentExport?: ExportItem;
 };
 
 export function ExportNewEditForm({ currentExport }: Props) {
@@ -46,7 +43,7 @@ export function ExportNewEditForm({ currentExport }: Props) {
 
   // ----------------------------------------------------------------------
   useEffect(() => {
-    async function fetchSupllierData() {
+    async function fetchCustomerData() {
       const url = 'http://localhost:8080/api/customers';
       try {
         const dataCustomer = await axios.get(url);
@@ -57,20 +54,28 @@ export function ExportNewEditForm({ currentExport }: Props) {
       }
     }
 
-    fetchSupllierData();
+    fetchCustomerData();
   }, []);
 
-  const defaultValues: NewImportSchemaType = {
-    totalAmount: null,
-    exportDate: null,
-    customerID: '',
+  const defaultValues: NewExportSchemaType = {
+    totalAmount: currentExport?.totalAmount || null,
+    exportDate: currentExport?.exportDate ? new Date(currentExport.exportDate) : null,
+    customerID: currentExport?.customerID?.customerID?.toString() || '',
   };
 
-  const methods = useForm<NewImportSchemaType>({
+  const transformedValues: NewExportSchemaType | undefined = currentExport
+    ? {
+        totalAmount: currentExport.totalAmount,
+        exportDate: currentExport.exportDate,
+        customerID: currentExport.customerID?.customerID.toString() || '',
+      }
+    : undefined;
+
+  const methods = useForm<NewExportSchemaType>({
     mode: 'onSubmit',
-    resolver: zodResolver(NewImportSchema),
+    resolver: zodResolver(NewExportSchema),
     defaultValues,
-    values: currentExport,
+    values: transformedValues,
   });
 
   const {
@@ -82,6 +87,14 @@ export function ExportNewEditForm({ currentExport }: Props) {
   const onSubmit = handleSubmit(async (data) => {
     console.log('Data Update', data);
 
+    const fixedData = currentExport
+      ? {
+          ...data,
+        }
+      : {
+          ...data,
+          customerID: data.customerID || dataCus[0]?.customerID || '',
+        };
     const apiUrl = currentExport
       ? `http://localhost:8080/api/exportwarehouse/${currentExport.exportID}` // API cho cập nhật (patch)
       : 'http://localhost:8080/api/exportwarehouse'; // API cho tạo mới (POST)
@@ -91,7 +104,7 @@ export function ExportNewEditForm({ currentExport }: Props) {
       const response = await axios({
         method,
         url: apiUrl,
-        data: data,
+        data: fixedData,
       });
 
       console.log('Response from API:', response.data);
@@ -132,7 +145,7 @@ export function ExportNewEditForm({ currentExport }: Props) {
             <Box sx={{ p: 3 }}>
               <Field.Select
                 name="customerID"
-                label="customerID"
+                label="customer"
                 slotProps={{
                   select: { native: true },
                   inputLabel: { shrink: true },
