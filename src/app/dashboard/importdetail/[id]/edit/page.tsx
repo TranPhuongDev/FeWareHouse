@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
 import axios from 'axios';
-import { ImportDetailAdd } from 'src/types/importdetail';
+
 import { ImportDetailEditView } from 'src/sections/importdetail/view';
+import { ImportDetail } from 'src/types/importdetail';
 
 // ----------------------------------------------------------------------
 
@@ -16,10 +17,10 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { id } = await params;
 
-  let currentImportDetail: ImportDetailAdd | undefined;
+  let currentImportDetail: ImportDetail | undefined;
 
   try {
-    const response = await axios.get<ImportDetailAdd>(
+    const response = await axios.get<ImportDetail>(
       `http://localhost:8080/api/importdetailwarehosue/${id}`
     );
     currentImportDetail = response.data;

@@ -6,12 +6,12 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { ImportDetailNewEditForm } from '../import-detail-new-edit-form';
-import { ImportDetailAdd } from 'src/types/importdetail';
+import { ImportDetail } from 'src/types/importdetail';
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  currentImportDetail?: ImportDetailAdd;
+  currentImportDetail?: ImportDetail;
 };
 export function ImportDetailEditView({ currentImportDetail: currentImportDetail }: Props) {
   return (

@@ -2,12 +2,12 @@ import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
 import axios from 'axios';
-import { ExportDetailAdd } from 'src/types/exportdetail';
+import { ExportDetail } from 'src/types/exportdetail';
 import { ExportDetailEditView } from 'src/sections/exportdetail/view';
 
 // ----------------------------------------------------------------------
 
-export const metadata: Metadata = { title: `Export edit | Dashboard - ${CONFIG.appName}` };
+export const metadata: Metadata = { title: `Export Detail edit | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -16,10 +16,10 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { id } = await params;
 
-  let currentExportDetail: ExportDetailAdd | undefined;
+  let currentExportDetail: ExportDetail | undefined;
 
   try {
-    const response = await axios.get<ExportDetailAdd>(
+    const response = await axios.get<ExportDetail>(
       `http://localhost:8080/api/exportdetailwarehouse/${id}`
     );
     currentExportDetail = response.data;

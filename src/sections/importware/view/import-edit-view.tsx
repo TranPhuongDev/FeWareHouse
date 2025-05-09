@@ -4,13 +4,12 @@ import { paths } from 'src/routes/paths';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { ICategoryItem } from 'src/types/category';
-import { ImportItemAdd } from 'src/types/importware';
 import { ImportNewEditForm } from '../import-new-edit-form';
+import { ImportItem } from 'src/types/importware';
 // ----------------------------------------------------------------------
 
 type Props = {
-  currentImport?: ImportItemAdd;
+  currentImport?: ImportItem;
 };
 export function ImportEditView({ currentImport: currentImport }: Props) {
   return (
@@ -20,7 +19,7 @@ export function ImportEditView({ currentImport: currentImport }: Props) {
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Import', href: paths.dashboard.importware.root },
-          { name: '' },
+          { name: currentImport?.importID.toString() },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

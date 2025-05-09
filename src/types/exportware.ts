@@ -11,10 +11,3 @@ export type ExportItem = {
   totalAmount: number;
   exportDate: Date;
 };
-
-export type ExportItemAdd = {
-  exportID: number;
-  customerID: string;
-  totalAmount: number;
-  exportDate: Date;
-};

@@ -75,6 +75,14 @@ export function ProductListView() {
       filterable: false,
     },
     {
+      field: 'supplierName',
+      headerName: 'supplier Name',
+      flex: 1,
+      renderCell: (data) => {
+        return data.row.supplierID.supplierName;
+      },
+    },
+    {
       field: 'description',
       headerName: 'Description',
       flex: 1,

@@ -24,6 +24,11 @@ import { RouterLink } from 'src/routes/components';
 import { paths } from 'src/routes/paths';
 import { GridActionsLinkItem } from 'src/sections/category/view';
 import { ImportDetail } from 'src/types/importdetail';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export function ImportDetailListView() {
   const [tableData, setTableData] = useState<ImportDetail[]>([]);
@@ -35,30 +40,8 @@ export function ImportDetailListView() {
       const url = 'http://localhost:8080/api/importdetailwarehosue';
       try {
         const response = await axios.get(url);
-
-        const rawImports = response.data.importdeatils;
-
-        // Flatten nested supplierID object
-        const formattedData = rawImports.map((item: any) => ({
-          importDetailID: item.importDetailID,
-          quantity: item.quantity,
-          importPrice: item.importPrice,
-          // import
-          importID: item.importID?.importID ?? null,
-          totalAmount: item.importID?.totalAmount ?? null,
-          importDate: item.importID?.importDate ?? null,
-
-          // product
-          productID: item.productID?.productID ?? null,
-          productName: item.productID?.productName ?? null,
-          description: item.productID?.description ?? null,
-          unit: item.productID?.unit ?? null,
-          importPriceProduct: item.productID?.importPrice ?? null,
-          salePrice: item.productID?.salePrice ?? null,
-        }));
-
-        console.log('formattedData', formattedData);
-        setTableData(formattedData);
+        console.log('response.data.importdeatils', response.data.importdeatils);
+        setTableData(response.data.importdeatils);
       } catch (error) {
         console.error('Error fetching import data:', error);
       }
@@ -128,11 +111,19 @@ export function ImportDetailListView() {
       field: 'importDate',
       headerName: 'Import Date',
       flex: 1,
+      renderCell: (data) => {
+        return data.row.importID.importDate
+          ? dayjs(data.row.importID.importDate).tz('Asia/Ho_Chi_Minh').format('MM/DD/YYYY HH:mm:ss')
+          : '';
+      },
     },
     {
       field: 'productName',
       headerName: 'Product Name',
       flex: 1,
+      renderCell: (data) => {
+        return data.row.productID.productName;
+      },
     },
     {
       type: 'actions',

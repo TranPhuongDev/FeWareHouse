@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
 import axios from 'axios';
-import { IAddSupplierItem } from 'src/types/supplier';
 import { CustomerEditView } from 'src/sections/customer/view';
 import { ICustomerItem } from 'src/types/customer';
 
