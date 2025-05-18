@@ -108,6 +108,19 @@ export const paths = {
     //   course: `${ROOTS.DASHBOARD}/course`,
     //   category: `${ROOTS.DASHBOARD}/category`,
     // },
+    // Accountant
+    goodreceipt: {
+      root: `${ROOTS.DASHBOARD}/goodreceipt`,
+      new: `${ROOTS.DASHBOARD}/goodreceipt/new`,
+      edit: (id: string) => `${ROOTS.DASHBOARD}/goodreceipt/${id}/edit`,
+    },
+
+    goodissue: {
+      root: `${ROOTS.DASHBOARD}/goodissue`,
+      new: `${ROOTS.DASHBOARD}/goodissue/new`,
+      edit: (id: string) => `${ROOTS.DASHBOARD}/goodissue/${id}/edit`,
+    },
+
     user: {
       root: `${ROOTS.DASHBOARD}/user`,
       new: `${ROOTS.DASHBOARD}/user/new`,

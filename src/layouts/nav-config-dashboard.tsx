@@ -48,6 +48,7 @@ const ICONS = {
   importdetail: icon('ic-importdetail'),
   exportWare: icon('ic-export'),
   exportdetail: icon('ic-exportdetail'),
+  iconorder: icon('ic-order'),
 };
 
 // ----------------------------------------------------------------------
@@ -73,6 +74,16 @@ export const navData: NavSectionProps['data'] = [
   {
     subheader: 'Overview',
     items: [{ title: 'App', path: paths.dashboard.root, icon: ICONS.dashboard }],
+  },
+  /**
+   * Accountant
+   */
+  {
+    subheader: 'Accountant',
+    items: [
+      { title: 'Phiếu Nhập Kho', path: paths.dashboard.goodreceipt.root, icon: ICONS.iconorder },
+      { title: 'Phiếu Xuất Kho', path: paths.dashboard.goodissue.root, icon: ICONS.iconorder },
+    ],
   },
   /**
    * Management
