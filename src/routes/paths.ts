@@ -98,16 +98,16 @@ export const paths = {
     calendar: `${ROOTS.DASHBOARD}/calendar`,
     fileManager: `${ROOTS.DASHBOARD}/file-manager`,
     permission: `${ROOTS.DASHBOARD}/permission`,
-    // general: {
-    //   app: `${ROOTS.DASHBOARD}/app`,
-    //   ecommerce: `${ROOTS.DASHBOARD}/ecommerce`,
-    //   analytics: `${ROOTS.DASHBOARD}/analytics`,
-    //   banking: `${ROOTS.DASHBOARD}/banking`,
-    //   booking: `${ROOTS.DASHBOARD}/booking`,
-    //   file: `${ROOTS.DASHBOARD}/file`,
-    //   course: `${ROOTS.DASHBOARD}/course`,
-    //   category: `${ROOTS.DASHBOARD}/category`,
-    // },
+    general: {
+      // app: `${ROOTS.DASHBOARD}/app`,
+      // ecommerce: `${ROOTS.DASHBOARD}/ecommerce`,
+      analytics: `${ROOTS.DASHBOARD}/analytics`,
+      // banking: `${ROOTS.DASHBOARD}/banking`,
+      // booking: `${ROOTS.DASHBOARD}/booking`,
+      // file: `${ROOTS.DASHBOARD}/file`,
+      // course: `${ROOTS.DASHBOARD}/course`,
+      // category: `${ROOTS.DASHBOARD}/category`,
+    },
     // Accountant
     goodreceipt: {
       root: `${ROOTS.DASHBOARD}/goodreceipt`,
@@ -119,6 +119,7 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/goodissue`,
       new: `${ROOTS.DASHBOARD}/goodissue/new`,
       edit: (id: string) => `${ROOTS.DASHBOARD}/goodissue/${id}/edit`,
+      details: (id: string) => `${ROOTS.DASHBOARD}/goodissue/${id}`,
     },
 
     user: {
