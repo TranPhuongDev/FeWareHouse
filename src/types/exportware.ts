@@ -35,5 +35,7 @@ export type ExportDetailItem = {
   };
   totalAmount: number;
   exportDate: Date;
+  status: string;
+  code: string;
   exportDetailID: ExportDetail[];
 };

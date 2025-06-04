@@ -83,6 +83,7 @@ export const navData: NavSectionProps['data'] = [
     items: [
       { title: 'Phiếu Nhập Kho', path: paths.dashboard.goodreceipt.root, icon: ICONS.iconorder },
       { title: 'Phiếu Xuất Kho', path: paths.dashboard.goodissue.root, icon: ICONS.iconorder },
+      { title: 'Analytics', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
     ],
   },
   /**

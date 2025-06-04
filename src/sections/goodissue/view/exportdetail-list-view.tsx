@@ -54,7 +54,7 @@ export function ExportDetailAccountantListView() {
     const url = 'http://localhost:8080/api/exportwarehouse';
     try {
       const dataRep = await axios.get(url);
-      console.log(' Data:', dataRep.data.exports);
+      // console.log(' Data:', dataRep.data.exports);
 
       setTableData(dataRep.data.exports);
     } catch (error) {
@@ -159,6 +159,12 @@ export function ExportDetailAccountantListView() {
                                   label="Edit"
                                   href={paths.dashboard.goodissue.edit(imp.exportID.toString())}
                                 />
+                                <GridActionsLinkItem
+                                  showInMenu
+                                  icon={<Iconify icon="payments:mastercard" />}
+                                  label="Thanh Toán"
+                                  href={paths.dashboard.goodissue.details(imp.exportID.toString())}
+                                />
                                 <Button
                                   variant="outlined"
                                   startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
@@ -181,13 +187,18 @@ export function ExportDetailAccountantListView() {
                         </TableCell>
                         <TableCell>{imp.totalAmount.toLocaleString()}</TableCell>
                         <TableCell>
+                          <GridActionsLinkItem
+                            showInMenu
+                            icon={<Iconify icon="solar:pen-bold" />}
+                            label="Edit"
+                            href={paths.dashboard.goodissue.edit(imp.exportID.toString())}
+                          />
                           <Button
-                            size="small"
                             variant="outlined"
-                            startIcon={<Iconify icon="solar:pen-bold" />}
-                            onClick={() => console.log(imp.exportID)}
+                            startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+                            onClick={() => handleDeleteRow(imp.exportID)}
                           >
-                            Edit
+                            Delete
                           </Button>
                         </TableCell>
                       </TableRow>

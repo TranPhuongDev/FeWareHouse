@@ -181,13 +181,18 @@ export function ImportDetailAccountantListView() {
                         </TableCell>
                         <TableCell>{imp.totalAmount.toLocaleString()}</TableCell>
                         <TableCell>
+                          <GridActionsLinkItem
+                            showInMenu
+                            icon={<Iconify icon="solar:pen-bold" />}
+                            label="Edit"
+                            href={paths.dashboard.goodreceipt.edit(imp.importID.toString())}
+                          />
                           <Button
-                            size="small"
                             variant="outlined"
-                            startIcon={<Iconify icon="solar:pen-bold" />}
-                            onClick={() => console.log(imp.importID)}
+                            startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+                            onClick={() => handleDeleteRow(imp.importID)}
                           >
-                            Edit
+                            Delete
                           </Button>
                         </TableCell>
                       </TableRow>

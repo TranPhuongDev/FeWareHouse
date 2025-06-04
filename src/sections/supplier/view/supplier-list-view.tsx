@@ -38,6 +38,8 @@ import { SupplierTableFiltersResult } from '../supplier-table-filters-result';
 import axios from 'axios';
 import { GridActionsLinkItem } from 'src/sections/category/view';
 import { toast } from 'sonner';
+import io from 'socket.io-client';
+const socket = io('http://localhost:8080');
 
 // ----------------------------------------------------------------------
 
@@ -63,21 +65,36 @@ export function SupplierListView() {
 
   const confirmDialog = useBoolean();
 
+  const fetchData = useCallback(async () => {
+    const url = 'http://localhost:8080/api/suppliers';
+    try {
+      const dataSupplier = await axios.get(url);
+      console.log('Supplier Data:', dataSupplier.data.suppliers);
+      setTableData(dataSupplier.data.suppliers);
+    } catch (error) {
+      console.error('Error fetching supplier data:', error);
+    }
+  }, [setTableData]);
+
   // list supplier
   useEffect(() => {
-    async function fetchData() {
-      const url = 'http://localhost:8080/api/suppliers';
-      try {
-        const dataSupplier = await axios.get(url);
-        console.log('Supplier Data:', dataSupplier.data.suppliers);
-        setTableData(dataSupplier.data.suppliers);
-      } catch (error) {
-        console.error('Error fetching supplier data:', error);
-      }
-    }
-
+    // Tải dữ liệu lần đầu khi component mount
     fetchData();
-  }, []);
+
+    // Lắng nghe sự kiện 'mysql_data_changed' từ Socket.IO
+    socket.on('mysql_data_changed', (data: any) => {
+      console.log('Nhận được thông báo từ NestJS:', data.message);
+      // Đợi 300ms để đảm bảo backend lưu xong
+      setTimeout(() => {
+        fetchData();
+      }, 300);
+    });
+
+    // Cleanup function khi component unmount
+    return () => {
+      socket.off('mysql_data_changed');
+    };
+  }, [fetchData]);
 
   const CustomToolbarCallback = useCallback(
     () => (
